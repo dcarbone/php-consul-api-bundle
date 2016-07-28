@@ -49,7 +49,7 @@ class GetCommand extends AbstractPHPConsulAPICommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $consul = $this->getContainer()->get('php_consul_api.client.default');
+        $consul = $this->getContainer()->get('consul_api.default');
 
         /** @var \DCarbone\PHPConsulAPI\KV\KVPair $kvp */
         /** @var \DCarbone\PHPConsulAPI\QueryMeta $qm */

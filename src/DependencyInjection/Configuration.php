@@ -25,54 +25,19 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
-    /** @var string */
-    private $_alias;
-
-    /**
-     * Configuration constructor.
-     * @param string $alias
-     */
-    public function __construct($alias)
-    {
-        $this->_alias = $alias;
-    }
-
     /**
      * @return TreeBuilder
      */
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $root = $treeBuilder->root($this->_alias);
+        $root = $treeBuilder->root('consul_api');
 
         $root
             ->children()
-                ->arrayNode('client')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->scalarNode('class')
-                            ->defaultValue('DCarbone\\PHPConsulAPI\\Consul')
-                            ->validate()
-                                ->ifTrue(function($v) {
-                                    return !(is_string($v) && class_exists($v) && in_array('DCarbone\\PHPConsulAPI\\Consul', class_parents($v)));
-                                })
-                                ->thenInvalid('"php_consul_api.client.class" must be a class which extends "DCarbone\\PHPConsulAPI\\Consul", "%s" does not appear to do so.')
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('config')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('class')
-                            ->defaultValue('DCarbone\\PHPConsulAPI\\Config')
-                            ->validate()
-                            ->ifTrue(function($v) {
-                                return !(is_string($v) && class_exists($v) && in_array('DCarbone\\PHPConsulAPI\\Config', class_parents($v)));
-                            })
-                            ->thenInvalid('"php_consul_api.config.class" must be a class which extends "DCarbone\\PHPConsulAPI\\Config", "%s" does not appear to do so.')
-                            ->end()
-                        ->end()
                         ->arrayNode('curl_opts')
                             ->prototype('array')
                                 ->children()

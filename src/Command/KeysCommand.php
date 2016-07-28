@@ -49,12 +49,14 @@ class KeysCommand extends AbstractPHPConsulAPICommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $consul = $this->getContainer()->get('php_consul_api.client.default');
+        $prefix = $input->getArgument('prefix');
+
+        $consul = $this->getContainer()->get('consul_api.default');
 
         /** @var string[] $keys */
         /** @var \DCarbone\PHPConsulAPI\QueryMeta $qm */
         /** @var \DCarbone\PHPConsulAPI\Error $err */
-        list($keys, $qm, $err) = $consul->KV->keys($input->getArgument('prefix'));
+        list($keys, $qm, $err) = $consul->KV->keys($prefix);
         if (null !== $err)
         {
             $output->writeln('ERROR: '.$err->getMessage());

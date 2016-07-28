@@ -15,5 +15,5 @@
 services:
 
     # Consul client using environment parameters
-    php_consul_api.client.default:
+    consul_api.default:
         class: DCarbone\PHPConsulAPI\Consul

@@ -32,7 +32,17 @@ class PHPConsulAPIExtension extends Extension
      */
     public function getAlias()
     {
-        return 'php_consul_api';
+        return 'consul_api';
+    }
+
+    /**
+     * @param array $config
+     * @param ContainerBuilder $container
+     * @return Configuration
+     */
+    public function getConfiguration(array $config, ContainerBuilder $container)
+    {
+        return new Configuration();
     }
 
     /**
@@ -45,14 +55,10 @@ class PHPConsulAPIExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $configuration = new Configuration($this->getAlias());
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('consul_api.yml');
+
+        $configuration = $this->getConfiguration($configs, $container);
         $this->processConfiguration($configuration, $configs);
-
-        $loader = new YamlFileLoader(
-            $container,
-            new FileLocator(__DIR__.'/../Resources/config')
-        );
-
-        $loader->load('services.yml');
     }
 }
