@@ -53,6 +53,6 @@ class PHPConsulAPIExtension extends Extension
             new FileLocator(__DIR__.'/../Resources/config')
         );
 
-        $loader->load('config.yml');
+        $loader->load('services.yml');
     }
 }
