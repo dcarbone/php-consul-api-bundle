@@ -14,18 +14,6 @@
 
 services:
 
-    # Consul config using environment parameters
-    php_consul_api.config.default:
-        class: DCarbone\PHPConsulAPI\Config
-        factory: [DCarbone\PHPConsulAPI\Config, newDefaultConfig]
-    # Consul config using configured parameters
-    php_consul_api.config:
-        class: DCarbone\PHPConsulAPI\Config
-
+    # Consul client using environment parameters
     php_consul_api.client.default:
         class: DCarbone\PHPConsulAPI\Consul
-        arguments: ["@php_consul_api.config.default"]
-
-    php_consul_api.client:
-        class: DCarbone\PHPConsulAPI\Consul
-        arguments: ["@php_consul_api.config"]

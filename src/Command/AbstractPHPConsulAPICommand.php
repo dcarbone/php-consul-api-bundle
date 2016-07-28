@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Factory;
+<?php namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
    Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,29 +16,28 @@
    limitations under the License.
 */
 
-use DCarbone\PHPConsulAPI\Config;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 /**
- * Class ConsulAPIConfigurationFactory
- * @package DCarbone\PHPConsulAPIBundle\Factory
+ * Class AbstractPHPConsulAPICommand
+ * @package DCarbone\PHPConsulAPIBundle\Command
  */
-class ConsulAPIConfigurationFactory
+abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
 {
     /**
-     * @return Config
+     * @return string
      */
-    public static function newDefaultConfig()
+    protected function getPrefix()
     {
-        return Config::newDefaultConfig();
+        return 'consul-api';
     }
 
-    public static function newConfig(array $params)
+    /**
+     * @param string $command
+     * @return string
+     */
+    protected function buildName($command)
     {
-        $conf = self::newDefaultConfig();
-        if (isset($params['addr']) && '' !== $params['addr'])
-            $conf->setAddress($params['addr']);
-        if (isset($params['scheme']) && '' !== $params['scheme'])
-            $conf->setScheme($params['scheme']);
-
+        return sprintf('%s:%s', $this->getPrefix(), $command);
     }
 }
