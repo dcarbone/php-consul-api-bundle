@@ -51,7 +51,7 @@ class KVKeysCommand extends AbstractPHPConsulAPICommand
     {
         $prefix = $input->getArgument('prefix');
 
-        $consul = $this->getContainer()->get('consul_api.default');
+        $consul = $this->getClient($input);
 
         /** @var string[] $keys */
         /** @var \DCarbone\PHPConsulAPI\QueryMeta $qm */

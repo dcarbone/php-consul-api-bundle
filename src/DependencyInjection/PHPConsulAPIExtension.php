@@ -18,8 +18,11 @@
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Class PHPConsulAPIExtension
@@ -61,6 +64,62 @@ class PHPConsulAPIExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
+        foreach($config as $name => $conf)
+        {
+            $this->_addServiceDefinition($name, $conf, $container);
+        }
+    }
 
+    /**
+     * @param string $name
+     * @param array $conf
+     * @param ContainerBuilder $container
+     */
+    private function _addServiceDefinition($name, array $conf, ContainerBuilder $container)
+    {
+        $serviceName = sprintf('consul_api.%s', $name);
+        $configName = sprintf('%s.config', $serviceName);
+
+        $container->setDefinition(
+            $configName,
+            $this->_newConfigDefinition($conf)
+        );
+
+        $service = $container->setDefinition(
+            $serviceName,
+            new DefinitionDecorator('consul_api.default')
+        );
+
+        $service->setArguments([new Reference($configName)]);
+    }
+
+    /**
+     * @param array $conf
+     * @return Definition
+     */
+    private function _newConfigDefinition(array $conf)
+    {
+        static $mapping = array(
+            'addr' => 'Address',
+            'scheme' => 'Scheme',
+            'datacenter' => 'Datacenter',
+            'wait_time' => 'WaitTime',
+            'http_auth' => 'HttpAuth',
+            'token' => 'Token',
+            'ca_file' => 'CAFile',
+            'cert_file' => 'CertFile',
+            'key_file' => 'KeyFile',
+            'insecure_skip_verify' => 'InsecureSkipVerify',
+            'curl_opts' => 'AdditionalCurlOpts',
+        );
+
+        $args = array();
+        foreach($conf as $k => $v)
+        {
+            if (isset($mapping[$k]))
+                $args[$mapping[$k]] = $v;
+        }
+
+        return new Definition('DCarbone\\PHPConsulAPI\\Config', [$args]);
     }
 }
