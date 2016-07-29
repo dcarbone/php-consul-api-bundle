@@ -52,8 +52,8 @@ class Configuration implements ConfigurationInterface
                                                 $opt = strtoupper($opt);
 
                                                 return 0 !== strpos($opt, 'CURLOPT_')
-                                                       || 'CURLINFO_HEADER_OUT' !== $opt
-                                                       || !defined($opt);
+                                                       && 'CURLINFO_HEADER_OUT' !== $opt
+                                                       && !defined($opt);
                                             })
                                             ->thenInvalid('"%s" is not a valid CURLOPT constant!  Please see http://php.net/manual/en/function.curl-setopt.php.')
                                         ->end()
