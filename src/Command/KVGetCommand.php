@@ -21,23 +21,23 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class KeysCommand
+ * Class KVGetCommand
  * @package DCarbone\PHPConsulAPIBundle\Command
  */
-class KeysCommand extends AbstractPHPConsulAPICommand
+class KVGetCommand extends AbstractPHPConsulAPICommand
 {
     /**
-     * @inheritdoc
+     * Configure this command
      */
     protected function configure()
     {
         $this
-            ->setName($this->buildName('keys'))
-            ->setDescription('Get list of keys in Consul with optional prefix')
+            ->setName($this->buildName('kv', 'get'))
+            ->setDescription('Query for and attempt to return KVP Value')
             ->addArgument(
-                'prefix',
-                InputArgument::OPTIONAL,
-                'Prefix to look under for KVP keys'
+                'key',
+                InputArgument::REQUIRED,
+                'Key to retrieve value for'
             )
         ;
     }
@@ -49,21 +49,20 @@ class KeysCommand extends AbstractPHPConsulAPICommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $prefix = $input->getArgument('prefix');
-
         $consul = $this->getContainer()->get('consul_api.default');
 
-        /** @var string[] $keys */
+        /** @var \DCarbone\PHPConsulAPI\KV\KVPair $kvp */
         /** @var \DCarbone\PHPConsulAPI\QueryMeta $qm */
         /** @var \DCarbone\PHPConsulAPI\Error $err */
-        list($keys, $qm, $err) = $consul->KV->keys($prefix);
+        list($kvp, $qm, $err) = $consul->KV->get($input->getArgument('key'));
+
         if (null !== $err)
         {
             $output->writeln('ERROR: '.$err->getMessage());
             return 1;
         }
 
-        $output->writeln($keys);
+        $output->writeln($kvp->Value);
         return 0;
     }
 }

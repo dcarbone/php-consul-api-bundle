@@ -34,9 +34,9 @@ class Configuration implements ConfigurationInterface
         $root = $treeBuilder->root('consul_api');
 
         $root
+            ->addDefaultsIfNotSet()
             ->children()
                 ->arrayNode('config')
-                    ->addDefaultsIfNotSet()
                     ->children()
                         ->arrayNode('curl_opts')
                             ->prototype('array')

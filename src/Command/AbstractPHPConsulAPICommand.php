@@ -33,11 +33,12 @@ abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
     }
 
     /**
+     * @param string $client
      * @param string $command
      * @return string
      */
-    protected function buildName($command)
+    protected function buildName($client, $command)
     {
-        return sprintf('%s:%s', $this->getPrefix(), $command);
+        return sprintf('%s:%s:%s', $this->getPrefix(), $client, $command);
     }
 }

@@ -59,6 +59,8 @@ class PHPConsulAPIExtension extends Extension
         $loader->load('consul_api.yml');
 
         $configuration = $this->getConfiguration($configs, $container);
-        $this->processConfiguration($configuration, $configs);
+        $config = $this->processConfiguration($configuration, $configs);
+
+
     }
 }
