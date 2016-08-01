@@ -39,9 +39,17 @@ class PHPConsulAPIBundle extends Bundle
     public function getContainerExtension()
     {
         if (!isset($this->extension))
-            $this->extension = new PHPConsulAPIExtension();
+            $this->extension = $this->createContainerExtension();
 
         return $this->extension;
+    }
+
+    /**
+     * @return PHPConsulAPIExtension
+     */
+    protected function createContainerExtension()
+    {
+        return new PHPConsulAPIExtension();
     }
 
     /**
