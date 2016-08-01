@@ -16,7 +16,6 @@
    limitations under the License.
 */
 
-use DCarbone\PHPConsulAPIBundle\DependencyInjection\PHPConsulAPIExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
@@ -26,10 +25,18 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 class PHPConsulAPIBundle extends Bundle
 {
     /**
-     * @return PHPConsulAPIExtension
+     * @return string
      */
-    public function getContainerExtension()
+    public function getNamespace()
     {
-        return new PHPConsulAPIExtension();
+        return 'DCarbone\\PHPConsulAPIBundle';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getContainerExtensionClass()
+    {
+        return 'DCarbone\\PHPConsulAPIBundle\\DependencyInjection\\PHPConsulAPIExtension';
     }
 }
