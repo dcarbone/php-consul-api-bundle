@@ -96,7 +96,7 @@ class Configuration implements ConfigurationInterface
                             ->defaultValue('http')
                         ->end()
                         ->scalarNode('addr')
-                            ->info('Address to Consul Agent WITHOUT scheme')
+                            ->info('Address:Port to Consul Agent WITHOUT scheme')
                             ->isRequired()
                             ->cannotBeEmpty()
             ;

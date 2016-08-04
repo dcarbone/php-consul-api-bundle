@@ -64,10 +64,15 @@ class PHPConsulAPIExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
+        $configNames = array();
+
         foreach($config as $name => $conf)
         {
+            $configNames[] = $name;
             $this->_addServiceDefinition($name, $conf, $container);
         }
+
+        $container->setParameter('consul_api.config_names', $configNames);
     }
 
     /**
