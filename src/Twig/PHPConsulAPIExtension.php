@@ -26,7 +26,7 @@ use DCarbone\PHPConsulAPI\Session\SessionEntry;
  * Class PHPConsulAPIExtension
  * @package DCarbone\PHPConsulAPIBundle\Twig
  */
-class PHPConsulAPIExtension extends \Twig_Extension
+class PHPConsulAPIExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
     /** @var Consul[] */
     private $_consuls = array();
