@@ -15,7 +15,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
+use DCarbone\PHPConsulAPI\Agent\AgentCheckRegistration;
+use DCarbone\PHPConsulAPI\Agent\AgentServiceRegistration;
 use DCarbone\PHPConsulAPI\Consul;
+use DCarbone\PHPConsulAPI\KV\KVPair;
+use DCarbone\PHPConsulAPI\Session\SessionEntry;
 
 /**
  * Class PHPConsulAPIExtension
@@ -23,8 +28,30 @@ use DCarbone\PHPConsulAPI\Consul;
  */
 class PHPConsulAPIExtension extends \Twig_Extension
 {
-    /** @var Consul */
-    private $_c;
+    /** @var Consul[] */
+    private $_consuls = array();
+
+    /** @var array */
+    private $_consulNames;
+
+    /**
+     * PHPConsulAPIExtension constructor.
+     * @param array $configNames
+     */
+    public function __construct(array $configNames)
+    {
+        $configNames[] = 'default';
+        $this->_consulNames = $configNames;
+    }
+
+    /**
+     * @param string $name
+     * @param Consul $c
+     */
+    public function addConsul($name, Consul $c)
+    {
+        $this->_consuls[$name] = $c;
+    }
 
     /**
      * Returns the name of the extension.
@@ -37,12 +64,13 @@ class PHPConsulAPIExtension extends \Twig_Extension
     }
 
     /**
-     * PHPConsulAPIExtension constructor.
-     * @param Consul $consul
+     * @return array
      */
-    public function __construct(Consul $consul)
+    public function getGlobals()
     {
-        $this->_c = $consul;
+        return array(
+            'consul_api_config_names' => $this->_consulNames,
+        );
     }
 
     /**
@@ -51,30 +79,143 @@ class PHPConsulAPIExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction(
-                'consul_kv_get',
-                array($this, 'consulKVGet')
-            ),
-            new \Twig_SimpleFunction(
-                'consul_catalog_services',
-                array($this, 'consulCatalogServices')
-            ),
-            new \Twig_SimpleFunction(
-                'consul_catalog_service',
-                array($this, 'consulCatalogService')
-            )
+
+            // Client getters
+            new \Twig_SimpleFunction('consul_kv', array($this, 'kv')),
+            new \Twig_SimpleFunction('consul_agent', array($this, 'agent')),
+            new \Twig_SimpleFunction('consul_catalog', array($this, 'catalog')),
+            new \Twig_SimpleFunction('consul_status', array($this, 'status')),
+            new \Twig_SimpleFunction('consul_event', array($this, 'event')),
+            new \Twig_SimpleFunction('consul_health', array($this, 'health')),
+            new \Twig_SimpleFunction('consul_coordinate', array($this, 'coordinate')),
+            new \Twig_SimpleFunction('consul_session', array($this, 'session')),
+
+
+            // Shortcuts
+            new \Twig_SimpleFunction('consul_kv_get', array($this, 'kvGet')),
+            new \Twig_SimpleFunction('consul_kv_list', array($this, 'kvList')),
+            new \Twig_SimpleFunction('consul_kv_keys', array($this, 'kvKeys')),
+
+            new \Twig_SimpleFunction('consul_catalog_services', array($this, 'catalogServices')),
+            new \Twig_SimpleFunction('consul_catalog_service', array($this, 'catalogService')),
+            new \Twig_SimpleFunction('consul_catalog_datacenters', array($this, 'catalogDatacenters')),
+            new \Twig_SimpleFunction('consul_catalog_node', array($this, 'catalogNode')),
+            new \Twig_SimpleFunction('consul_catalog_nodes', array($this, 'catalogNodes')),
+
+            new \Twig_SimpleFunction('consul_coord_datacenters', array($this, 'coordinateDatacenters')),
+            new \Twig_SimpleFunction('consul_coord_nodes', array($this, 'coordinateNodes')),
+
+            new \Twig_SimpleFunction('consul_event_list', array($this, 'eventList')),
+
+            new \Twig_SimpleFunction('consul_health_node', array($this, 'healthNode')),
+            new \Twig_SimpleFunction('consul_health_checks', array($this, 'healthChecks')),
+            new \Twig_SimpleFunction('consul_health_service', array($this, 'healthService')),
+            new \Twig_SimpleFunction('consul_health_state', array($this, 'healthState')),
+
+            new \Twig_SimpleFunction('consul_session_info', array($this, 'sessionInfo')),
+            new \Twig_SimpleFunction('consul_session_node', array($this, 'sessionNode')),
+            new \Twig_SimpleFunction('consul_session_list', array($this, 'sessionList')),
+
+            new \Twig_SimpleFunction('consul_status_leader', array($this, 'statusLeader')),
+            new \Twig_SimpleFunction('consul_status_peers', array($this, 'statusPeers')),
+
         );
     }
 
+
+    // Client getter methods
+
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\KV\KVClient
+     */
+    public function kv($configName = 'default') { return $this->_getClient($configName)->KV; }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Agent\AgentClient
+     */
+    public function agent($configName = 'default') { return $this->_getClient($configName)->Agent; }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Catalog\CatalogClient
+     */
+    public function catalog($configName = 'default') { return $this->_getClient($configName)->Catalog; }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Status\StatusClient
+     */
+    public function status($configName = 'default') { return $this->_getClient($configName)->Status; }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Event\EventClient
+     */
+    public function event($configName = 'default') { return $this->_getClient($configName)->Event; }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Health\HealthClient
+     */
+    public function health($configName = 'default') { return $this->_getClient($configName)->Health; }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Coordinate\CoordinateClient
+     */
+    public function coordinate($configName = 'default') { return $this->_getClient($configName)->Coordinate; }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Session\SessionClient
+     */
+    public function session($configName = 'default') { return $this->_getClient($configName)->Session; }
+
+
+    // Object creator methods
+
+
+    /**
+     * @param array $params
+     * @return KVPair
+     */
+    public function newKVPair(array $params = array()) { return new KVPair($params); }
+
+    /**
+     * @param array $params
+     * @return AgentServiceRegistration
+     */
+    public function newAgentServiceRegistration(array $params = array()) { return new AgentServiceRegistration($params); }
+
+    /**
+     * @param array $params
+     * @return AgentCheckRegistration
+     */
+    public function newAgentCheckRegistration(array $params = array()) { return new AgentCheckRegistration($params); }
+
+    /**
+     * @param array $params
+     * @return SessionEntry
+     */
+    public function newSessionEntry(array $params = array()) { return new SessionEntry($params); }
+
+
+    // Shortcut methods
+
+
     /**
      * @param string $key
+     * @param string $configName
      * @return \DCarbone\PHPConsulAPI\KV\KVPair
      */
-    public function consulKVGet($key)
+    public function kvGet($key, $configName = 'default')
     {
         /** @var \DCarbone\PHPConsulAPI\KV\KVPair $kvp */
         /** @var \DCarbone\PHPConsulAPI\Error $err */
-        list($kvp, $_, $err) = $this->_c->KV->get($key);
+        list($kvp, $_, $err) = $this->_getClient($configName)->KV->get($key);
         if (null !== $err)
             throw new \RuntimeException($err->getMessage());
 
@@ -82,15 +223,48 @@ class PHPConsulAPIExtension extends \Twig_Extension
     }
 
     /**
-     * @param string $serviceName
+     * @param string $prefix
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\KV\KVPair[]
+     */
+    public function kvList($prefix = '', $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\KV\KVPair[] $list */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($list, $_, $err) = $this->_getClient($configName)->KV->valueList($prefix);
+        if (null !== $err)
+            throw new \RuntimeException($err);
+
+        return $list;
+    }
+
+    /**
+     * @param string $prefix
+     * @param string $configName
+     * @return string[]
+     */
+    public function kvKeys($prefix = '', $configName = 'default')
+    {
+        /** @var string[] $keys */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($keys, $_, $err) = $this->_getClient($configName)->KV->keys($prefix);
+        if (null !== $err)
+            throw new \RuntimeException($err);
+
+        return $keys;
+    }
+
+    /**
+     * @param string $name
      * @param string $tags
+     * @param string $configName
      * @return \DCarbone\PHPConsulAPI\Catalog\CatalogService[]
      */
-    public function consulCatalogServices($serviceName, $tags = '')
+    public function catalogServices($name, $tags = '', $configName = 'default')
     {
         /** @var \DCarbone\PHPConsulAPI\Catalog\CatalogService[] $services */
         /** @var \DCarbone\PHPConsulAPI\Error $err */
-        list($services, $_, $err) = $this->_c->Catalog->service($serviceName, (string)$tags);
+        list($services, $_, $err) = $this->_getClient($configName)->Catalog->service($name, (string)$tags);
         if (null !== $err)
             throw new \RuntimeException($err->getMessage());
 
@@ -98,13 +272,258 @@ class PHPConsulAPIExtension extends \Twig_Extension
     }
 
     /**
-     * @param string $serviceName
+     * @param string $name
      * @param string $tags
+     * @param string $configName
      * @return \DCarbone\PHPConsulAPI\Catalog\CatalogService
      */
-    public function consulCatalogService($serviceName, $tags = '')
+    public function catalogService($name, $tags = '', $configName = 'default')
     {
-        $services = $this->consulCatalogServices($serviceName, $tags);
+        $services = $this->catalogServices($name, $tags, $configName);
         return reset($services);
+    }
+
+    /**
+     * @param string $configName
+     * @return string[]
+     */
+    public function catalogDatacenters($configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($datacenters, $err) = $this->_getClient($configName)->Catalog->datacenters();
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $datacenters;
+    }
+
+    /**
+     * @param string $node
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Catalog\CatalogNode
+     */
+    public function catalogNode($node, $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Catalog\CatalogNode $node */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($node, $_, $err) = $this->_getClient($configName)->Catalog->node($node);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $node;
+    }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Catalog\CatalogNode[]
+     */
+    public function catalogNodes($configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($nodes, $_, $err) = $this->_getClient($configName)->Catalog->nodes();
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $nodes;
+    }
+
+    /**
+     * @param $node
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Health\HealthCheck[]
+     */
+    public function healthNode($node, $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Health\HealthCheck[] $hcs */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($hcs, $_, $err) = $this->_getClient($configName)->Health->node($node);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $hcs;
+    }
+
+    /**
+     * @param string $service
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Health\HealthCheck[]
+     */
+    public function healthChecks($service, $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Health\HealthCheck[] $hcs */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($hcs, $_, $err) = $this->_getClient($configName)->Health->checks($service);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $hcs;
+    }
+
+    /**
+     * @param string $service
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Health\ServiceEntry[]
+     */
+    public function healthService($service, $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Health\ServiceEntry[] $services */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($services, $_, $err) = $this->_getClient($configName)->Health->service($service);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $services;
+    }
+
+    /**
+     * @param string $state
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Health\HealthCheck[]
+     */
+    public function healthState($state, $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Health\HealthCheck[] $hcs */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($hcs, $_, $err) = $this->_getClient($configName)->Health->state($state);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $hcs;
+    }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Coordinate\CoordinateDatacenterMap[]
+     */
+    public function coordinateDatacenters($configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Coordinate\CoordinateDatacenterMap[] $dcm */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($dcm, $err) = $this->_getClient($configName)->Coordinate->datacenters();
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $dcm;
+    }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Coordinate\CoordinateEntry[]
+     */
+    public function coordinateNodes($configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Coordinate\CoordinateEntry[] $ces */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($ces, $_, $err) = $this->_getClient($configName)->Coordinate->nodes();
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $ces;
+    }
+
+    /**
+     * @param string $name
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Event\UserEvent[]
+     */
+    public function eventList($name = '', $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Event\UserEvent[] $el */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($el, $_, $err) = $this->_getClient($configName)->Event->eventList($name);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $el;
+    }
+
+    /**
+     * @param string $id
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Session\SessionEntry[]
+     */
+    public function sessionInfo($id, $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Session\SessionEntry[] $ses */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($ses, $_, $err) = $this->_getClient($configName)->Session->info($id);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $ses;
+    }
+
+    /**
+     * @param string $node
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Session\SessionEntry[]
+     */
+    public function sessionNode($node, $configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Session\SessionEntry[] $ses */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($ses, $_, $err) = $this->_getClient($configName)->Session->node($node);
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $ses;
+    }
+
+    /**
+     * @param string $configName
+     * @return \DCarbone\PHPConsulAPI\Session\SessionEntry[]
+     */
+    public function sessionList($configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Session\SessionEntry[] $ses */
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($ses, $_, $err) = $this->_getClient($configName)->Session->listSessions();
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $ses;
+    }
+
+    /**
+     * @param string $configName
+     * @return string
+     */
+    public function statusLeader($configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($name, $err) = $this->_getClient($configName)->Status->leader();
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $name;
+    }
+
+    /**
+     * @param string $configName
+     * @return string[]
+     */
+    public function statusPeers($configName = 'default')
+    {
+        /** @var \DCarbone\PHPConsulAPI\Error $err */
+        list($peers, $err) = $this->_getClient($configName)->Status->peers();
+        if (null !== $err)
+            throw new \RuntimeException($err->getMessage());
+
+        return $peers;
+    }
+
+    /**
+     * @param string $configName
+     * @return Consul
+     */
+    private function _getClient($configName)
+    {
+        if (isset($this->_consuls[$configName]))
+            return $this->_consuls[$configName];
+
+        throw new \InvalidArgumentException(sprintf(
+            'No Consul environment name "%s" configured.',
+            $configName
+        ));
     }
 }

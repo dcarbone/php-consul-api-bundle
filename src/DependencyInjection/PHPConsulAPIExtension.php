@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -61,6 +62,8 @@ class PHPConsulAPIExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('consul_api.yml');
 
+        $bundles = $container->getParameter('kernel.bundles');
+
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
@@ -73,6 +76,28 @@ class PHPConsulAPIExtension extends Extension
         }
 
         $container->setParameter('consul_api.config_names', $configNames);
+
+        // Load twig extension if twig is loaded
+        if (isset($bundles['TwigBundle']))
+        {
+            $service = new Definition(
+                \DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPIExtension::class,
+                array(new Parameter('consul_api.config_names'))
+            );
+            $service->addMethodCall('addConsul', array('default', new Reference('consul_api.default')));
+
+            foreach($configNames as $configName)
+            {
+                $service->addMethodCall(
+                    'addConsul',
+                    array($configName, new Reference(sprintf('consul_api.%s', $configName)))
+                );
+            }
+
+            $service->addTag('twig.extension');
+
+            $container->setDefinition('consul_api.twig.extension', $service);
+        }
     }
 
     /**
