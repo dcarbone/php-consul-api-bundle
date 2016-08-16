@@ -15,6 +15,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
 use DCarbone\PHPConsulAPI\Consul;
 
 /**
@@ -25,6 +26,18 @@ class ConsulBag
 {
     /** @var Consul[] */
     private $_consuls = array();
+
+    /** @var Consul */
+    private $_default;
+
+    /**
+     * ConsulBag constructor.
+     * @param Consul $consul
+     */
+    public function __construct(Consul $consul)
+    {
+        $this->_default = $consul;
+    }
 
     /**
      * @param string $name
@@ -40,7 +53,7 @@ class ConsulBag
      */
     public function getDefault()
     {
-        return $this->_consuls['default'];
+        return $this->_default;
     }
 
     /**
@@ -49,6 +62,9 @@ class ConsulBag
      */
     public function getNamed($name)
     {
+        if ('default' === $name)
+            return $this->_default;
+
         if (isset($this->_consuls[$name]))
             return $this->_consuls[$name];
 

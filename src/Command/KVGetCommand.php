@@ -49,7 +49,7 @@ class KVGetCommand extends AbstractPHPConsulAPICommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $consul = $this->getClient($input);
+        $consul = $this->getConsul($input);
 
         /** @var \DCarbone\PHPConsulAPI\KV\KVPair $kvp */
         /** @var \DCarbone\PHPConsulAPI\QueryMeta $qm */

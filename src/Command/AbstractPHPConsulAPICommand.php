@@ -19,6 +19,7 @@
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class AbstractPHPConsulAPICommand
@@ -26,6 +27,9 @@ use Symfony\Component\Console\Input\InputOption;
  */
 abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
 {
+    /** @var \DCarbone\PHPConsulAPIBundle\Bag\ConsulBag */
+    protected $_consulBag;
+
     /**
      * Constructor.
      *
@@ -38,35 +42,31 @@ abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
         parent::__construct($name);
 
         $this->addOption(
-            'client',
+            'config',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Client configuration to use',
+            'Named configuration to use',
             'default'
         );
+    }
+
+    /**
+     * @param ContainerInterface|null $container
+     */
+    public function setContainer(ContainerInterface $container = null)
+    {
+        parent::setContainer($container);
+
+        $this->_consulBag = $container->get('consul_api.bag');
     }
 
     /**
      * @param InputInterface $input
      * @return \DCarbone\PHPConsulAPI\Consul
      */
-    protected function getClient(InputInterface $input)
+    protected function getConsul(InputInterface $input)
     {
-        $container = $this->getContainer();
-
-        $client = $input->getOption('client');
-        if ('default' === $client)
-            return $container->get('consul_api.default');
-
-        $s = sprintf('consul_api.%s', $client);
-
-        if ($container->has($s))
-            return $container->get($s);
-
-        throw new \LogicException(sprintf(
-            'Unable to locate Consul service definition labeled "%s".  Please check your configuration.',
-            $client
-        ));
+        return $this->_consulBag->getNamed($input->getOption('config'));
     }
 
     /**

@@ -93,7 +93,7 @@ class PHPConsulAPIExtension extends Extension
         {
             $service = new Definition(
                 PHPConsulAPITwigExtension::class,
-                array(new Reference('consul_api.factory'), new Parameter('consul_api.config_names'))
+                array(new Reference('consul_api.bag'), new Parameter('consul_api.config_names'))
             );
 
             $service->addTag('twig.extension');
