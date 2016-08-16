@@ -78,11 +78,11 @@ class PHPConsulAPIExtension extends Extension
 
         $container->setParameter('consul_api.config_names', $configNames);
 
-        $factory = $container->getDefinition('consul_api.factory');
+        $bag = $container->getDefinition('consul_api.bag');
 
         foreach($configNames as $configName)
         {
-            $factory->addMethodCall(
+            $bag->addMethodCall(
                 'addConsul',
                 array($configName, new Reference(sprintf('consul_api.%s', $configName)))
             );
