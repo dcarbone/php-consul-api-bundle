@@ -32,10 +32,24 @@ class ListConfigsCommand extends ContainerAwareCommand
     private $_longestConfigName = 0;
 
     /** @var array */
+    private $_curlConstants;
+
+    /** @var array */
     private static $_preOut = [
         'PHP Consul API Configurations:',
         '  default',
     ];
+
+    /**
+     * ListConfigsCommand constructor.
+     * @param null|string $name
+     */
+    public function __construct($name = null)
+    {
+        parent::__construct($name);
+        $constants = get_defined_constants(true);
+        $this->_curlConstants = array_flip($constants['curl']);
+    }
 
     /**
      * Configure this command
@@ -51,7 +65,7 @@ class ListConfigsCommand extends ContainerAwareCommand
                 InputOption::VALUE_NONE,
                 'Dump configuration'
             )
-            ;
+        ;
     }
 
     /**
@@ -103,8 +117,15 @@ class ListConfigsCommand extends ContainerAwareCommand
             if ($this->_longestConfigName < ($len = strlen($k)))
                 $this->_longestConfigName = $len;
 
-            if ($v !== null)
-                $out[] = sprintf('    %s:%%s%s', $k, $v);
+            if ('AdditionalCurlOpts' === $k)
+            {
+                if (0 < count($v))
+                    $out = array_merge($out, $this->_buildCurlOptOutput($v));
+            }
+            else if ($v !== null)
+            {
+                $out[] = sprintf('    %s: %s', $k, $this->_getValueOutput($v));
+            }
         }
 
         $out[] = '';
@@ -112,13 +133,65 @@ class ListConfigsCommand extends ContainerAwareCommand
         foreach($container->getParameter('consul_api.config_names') as $name)
         {
             $out[] = sprintf('  %s', $name);
-            foreach($container->get(sprintf('consul_api.config.%s', $name)) as $k => $v)
+            foreach($container->get(sprintf('consul_api.%s.config', $name)) as $k => $v)
             {
-                if ($v !== null)
-                    $out[] = sprintf('    %s:%%s%s', $k, $v);
+                if ('AdditionalCurlOpts' === $k)
+                {
+                    if (0 < count($v))
+                        $out = array_merge($out, $this->_buildCurlOptOutput($v));
+                }
+                else if ($v !== null)
+                {
+                    $out[] = sprintf('    %s: %s', $k, $this->_getValueOutput($v));
+                }
             }
 
             $out[] = '';
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param mixed $value
+     * @return string
+     */
+    private function _getValueOutput($value)
+    {
+        switch(gettype($value))
+        {
+            case 'resource':
+                return get_resource_type($value);
+
+            case 'array':
+            case 'object':
+                return json_encode($value);
+
+            case 'boolean':
+                return $value ? 'TRUE' : 'FALSE';
+
+            case 'NULL':
+                return 'NULL';
+
+            default:
+                return (string)$value;
+        }
+    }
+
+    /**
+     * @param array $curlopts
+     * @return array
+     */
+    private function _buildCurlOptOutput(array $curlopts)
+    {
+        $out = [];
+
+        foreach($curlopts as $k => $v)
+        {
+            if (isset($this->_curlConstants[$k]))
+                $out[] = sprintf('      %s:  %s', $this->_curlConstants[$k], $this->_getValueOutput($v));
+            else
+                $out[] = sprintf('      %s:  %s', $k, $this->_getValueOutput($v));
         }
 
         return $out;
