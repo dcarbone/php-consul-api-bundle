@@ -77,22 +77,26 @@ class PHPConsulAPIExtension extends Extension
 
         $container->setParameter('consul_api.config_names', $configNames);
 
+        $factory = $container->getDefinition('consul_api.factory');
+
+        foreach($configNames as $configName)
+        {
+            $factory->addMethodCall(
+                'addConsul',
+                array($configName, new Reference(sprintf('consul_api.%s', $configName)))
+            );
+        }
+
         // Load twig extension if twig is loaded
         if (isset($bundles['TwigBundle']))
         {
             $service = new Definition(
-                \DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPIExtension::class,
+                \DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension::class,
                 array(new Parameter('consul_api.config_names'))
             );
             $service->addMethodCall('addConsul', array('default', new Reference('consul_api.default')));
 
-            foreach($configNames as $configName)
-            {
-                $service->addMethodCall(
-                    'addConsul',
-                    array($configName, new Reference(sprintf('consul_api.%s', $configName)))
-                );
-            }
+
 
             $service->addTag('twig.extension');
 

@@ -22,3 +22,8 @@ services:
     # Consul client using environment parameters
     consul_api.default:
         class: DCarbone\PHPConsulAPI\Consul
+
+    consul_api.factory:
+        class: DCarbone\PHPConsulAPIBundle\Factory\ConsulFactory
+        calls:
+            - [addConsul, ['default', "@consul_api.default"]]

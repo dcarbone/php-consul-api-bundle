@@ -75,4 +75,4 @@ This will create a new service named `consul_api.nifty_name` with the specified 
 If you are using [Twig](http://twig.sensiolabs.org/) and
 [TwigBundle](https://packagist.org/packages/symfony/twig-bundle) in your Symfony app, there are a few 
 functions exposed to you.  You can see the full list here:
-[PHPConsulAPIExtension](./src/Twig/PHPConsulAPIExtension.php#L80).
+[PHPConsulAPIExtension](./src/Twig/PHPConsulAPITwigExtension.php#L71).
