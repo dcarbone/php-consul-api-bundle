@@ -33,7 +33,7 @@ abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
      *
      * @throws \LogicException When the command name is empty
      */
-    public function __construct($name)
+    public function __construct($name = null)
     {
         parent::__construct($name);
 
