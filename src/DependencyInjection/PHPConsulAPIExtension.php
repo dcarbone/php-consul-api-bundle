@@ -16,6 +16,7 @@
    limitations under the License.
 */
 
+use DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -91,12 +92,9 @@ class PHPConsulAPIExtension extends Extension
         if (isset($bundles['TwigBundle']))
         {
             $service = new Definition(
-                \DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension::class,
-                array(new Parameter('consul_api.config_names'))
+                PHPConsulAPITwigExtension::class,
+                array(new Reference('consul_api.factory'), new Parameter('consul_api.config_names'))
             );
-            $service->addMethodCall('addConsul', array('default', new Reference('consul_api.default')));
-
-
 
             $service->addTag('twig.extension');
 

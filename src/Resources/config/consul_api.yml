@@ -24,6 +24,6 @@ services:
         class: DCarbone\PHPConsulAPI\Consul
 
     consul_api.factory:
-        class: DCarbone\PHPConsulAPIBundle\Factory\ConsulFactory
+        class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
         calls:
             - [addConsul, ['default', "@consul_api.default"]]
