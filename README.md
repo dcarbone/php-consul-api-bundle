@@ -8,7 +8,7 @@ In your `composer.json` file:
 ```json
 {
     "require": {
-        "dcarbone/php-consul-api-bundle": "0.3.*"
+        "dcarbone/php-consul-api-bundle": "0.4.*"
     }
 }
 ```
