@@ -72,6 +72,7 @@ class PHPConsulAPIExtension extends Extension
         $namedConfigurations = $config['named_configurations'];
 
         $container->setParameter('consul_api.default_configuration_name', $defaultConfiguration);
+        $container->setAlias('consul_api.default.config', sprintf('consul_api.%s.config', $defaultConfiguration));
 
         $configNames = array();
 
@@ -84,6 +85,7 @@ class PHPConsulAPIExtension extends Extension
         $container->setParameter('consul_api.config_names', $configNames);
 
         $bag = $container->getDefinition('consul_api.bag');
+        $bag->addArgument(new Parameter('consul_api.default_configuration_name'));
 
         $namedConsuls = array();
         foreach($configNames as $configName)
