@@ -8,7 +8,7 @@ In your `composer.json` file:
 ```json
 {
     "require": {
-        "dcarbone/php-consul-api-bundle": "0.4.*"
+        "dcarbone/php-consul-api-bundle": "0.5.*"
     }
 }
 ```
@@ -30,14 +30,24 @@ In your `AppKernel.php` file:
     }
 ```
 
-## Default Configuration
+## Local Configuration
 
-By default this lib provides a "default" Consul client that will be constructed using the standard Consul
+There will always be at least one registered Consul service using the standard Consul
 environment variables.  If you wish to use this, at the very least `CONSUL_HTTP_ADDR` should be defined.
 
-This default Consul client is registered as `consul_api.default`.
+The service can be accessed using the `consul_api.local` service.  This is also the default target of the
+`consul_api.default` alias.
 
-## Named Configuration
+## Default Configuration
+
+You may optionally override the default configuration with one of the named configurations you have specified as such:
+
+```yaml
+consul_api:
+    default_configuration: nifty_name
+```
+
+## Named Configurations
 
 If you wish to connect to multiple Consul agents, or just want to have things named differently, you may optionally
 configure them under the `consul_api` configuration namespace.
@@ -60,12 +70,13 @@ As an example:
 
 ```yaml
 consul_api:
-    nifty_name:
-        addr:                   hostname.domain.woot
-        scheme:                 https
-        insecure_skip_verify:   false
-        curl_opts:
-            curlopt_fresh_connect: 1
+    named_configurations:
+        nifty_name:
+            addr:                   hostname.domain.woot
+            scheme:                 https
+            insecure_skip_verify:   false
+            curl_opts:
+                curlopt_fresh_connect: 1
 ```
 
 This will create a new service named `consul_api.nifty_name` with the specified configuration options.
@@ -76,3 +87,8 @@ If you are using [Twig](http://twig.sensiolabs.org/) and
 [TwigBundle](https://packagist.org/packages/symfony/twig-bundle) in your Symfony app, there are a few 
 functions exposed to you.  You can see the full list here:
 [PHPConsulAPIExtension](./src/Twig/PHPConsulAPITwigExtension.php#L71).
+
+## ConsulBag
+
+If you have multiple named configurations present and want to be able to access them all, one possible way is to
+utilize the [ConsulBag](./src/Bag/ConsulBag.php) service.  It is defined as `consul_api.bag`  
