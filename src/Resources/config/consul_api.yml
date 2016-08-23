@@ -15,15 +15,15 @@
 services:
 
     # Default Consul config
-    consul_api.default.config:
+    consul_api.local.config:
         class: DCarbone\PHPConsulAPI\Config
         factory: [DCarbone\PHPConsulAPI\Config, newDefaultConfig]
 
     # Consul client using environment parameters
-    consul_api.default:
+    consul_api.local:
         class: DCarbone\PHPConsulAPI\Consul
 
     consul_api.bag:
         class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
         arguments:
-            - "@consul_api.default"
+            - "@consul_api.local"

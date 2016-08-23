@@ -68,9 +68,14 @@ class PHPConsulAPIExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
+        $defaultConfiguration = $config['default_configuration'];
+        $namedConfigurations = $config['named_configurations'];
+
+        $container->setParameter('consul_api.default_configuration_name', $defaultConfiguration);
+
         $configNames = array();
 
-        foreach($config as $name => $conf)
+        foreach($namedConfigurations as $name => $conf)
         {
             $configNames[] = $name;
             $this->_addServiceDefinition($name, $conf, $container);
@@ -80,13 +85,14 @@ class PHPConsulAPIExtension extends Extension
 
         $bag = $container->getDefinition('consul_api.bag');
 
+        $namedConsuls = array();
         foreach($configNames as $configName)
         {
-            $bag->addMethodCall(
-                'addConsul',
-                array($configName, new Reference(sprintf('consul_api.%s', $configName)))
-            );
+            $namedConsuls[$configName] = new Reference(sprintf('consul_api.%s', $configName));
         }
+        $bag->addArgument($namedConsuls);
+
+        $container->setAlias('consul_api.default', sprintf('consul_api.%s', $defaultConfiguration));
 
         // Load twig extension if twig is loaded
         if (isset($bundles['TwigBundle']))
@@ -119,7 +125,7 @@ class PHPConsulAPIExtension extends Extension
 
         $service = $container->setDefinition(
             $serviceName,
-            new DefinitionDecorator('consul_api.default')
+            new DefinitionDecorator('consul_api.local')
         );
 
         $service->setArguments([new Reference($configName)]);

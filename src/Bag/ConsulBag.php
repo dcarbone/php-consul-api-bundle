@@ -22,30 +22,34 @@ use DCarbone\PHPConsulAPI\Consul;
  * Class ConsulBag
  * @package DCarbone\PHPConsulAPIBundle\Bag
  */
-class ConsulBag
+class ConsulBag implements \Iterator
 {
     /** @var Consul[] */
-    private $_consuls = array();
-
+    private $_namedConsuls = array();
+    /** @var string */
+    private $_defaultName;
     /** @var Consul */
-    private $_default;
+    private $_local;
 
     /**
      * ConsulBag constructor.
-     * @param Consul $consul
+     * @param Consul $localConsul
+     * @param string $defaultName
+     * @param array $namedConsuls
      */
-    public function __construct(Consul $consul)
+    public function __construct(Consul $localConsul, $defaultName, array $namedConsuls = array())
     {
-        $this->_default = $consul;
+        $this->_local = $localConsul;
+        $this->_namedConsuls = $namedConsuls;
+        $this->_defaultName = $defaultName;
     }
 
     /**
-     * @param string $name
-     * @param Consul $consul
+     * @return Consul
      */
-    public function addConsul($name, Consul $consul)
+    public function getLocal()
     {
-        $this->_consuls[$name] = $consul;
+        return $this->_local;
     }
 
     /**
@@ -53,7 +57,7 @@ class ConsulBag
      */
     public function getDefault()
     {
-        return $this->_default;
+        return $this->getNamed($this->_defaultName);
     }
 
     /**
@@ -62,15 +66,67 @@ class ConsulBag
      */
     public function getNamed($name)
     {
-        if ('default' === $name)
-            return $this->_default;
+        if ('local' === $name)
+            return $this->_local;
 
-        if (isset($this->_consuls[$name]))
-            return $this->_consuls[$name];
+        if ('default' === $name)
+            $name = $this->_defaultName;
+
+        if (isset($this->_namedConsuls[$name]))
+            return $this->_namedConsuls[$name];
 
         throw new \OutOfBoundsException(sprintf(
-            'There is no Consul service registered with name "%s"',
-            $name
+            'There is no Consul Configuration registered with name "%s".  Available configurations: ["%s"]',
+            $name,
+            implode('", "', array_keys($this->_namedConsuls))
         ));
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getNames()
+    {
+        return array_keys($this->_namedConsuls);
+    }
+
+    /**
+     * @return Consul
+     */
+    public function current()
+    {
+        return current($this->_namedConsuls);
+    }
+
+    /**
+     * @return void
+     */
+    public function next()
+    {
+        next($this->_namedConsuls);
+    }
+
+    /**
+     * @return string
+     */
+    public function key()
+    {
+        return key($this->_namedConsuls);
+    }
+
+    /**
+     * @return bool
+     */
+    public function valid()
+    {
+        return null !== key($this->_namedConsuls);
+    }
+
+    /**
+     * @return void
+     */
+    public function rewind()
+    {
+        reset($this->_namedConsuls);
     }
 }
