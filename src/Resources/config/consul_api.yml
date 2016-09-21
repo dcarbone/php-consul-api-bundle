@@ -27,3 +27,13 @@ services:
         class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
         arguments:
             - "@consul_api.local"
+
+    # Twig extension registration
+    consul_api.twig.extension:
+        class: DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension
+        public: false
+        arguments:
+            - "@consul_api.bag"
+            - "%consul_api.config_names%"
+        tags:
+            - { name: twig.extension }

@@ -63,7 +63,8 @@ class Configuration implements ConfigurationInterface
                                                                && 'CURLINFO_HEADER_OUT' !== $opt
                                                                && !defined($opt);
                                                     })
-                                                    ->thenInvalid('"%s" is not a valid CURLOPT constant!  Please see http://php.net/manual/en/function.curl-setopt.php.')
+                                                    ->thenInvalid('"%s" is not a valid CURLOPT constant!  Please see'.
+                                                                  ' http://php.net/manual/en/function.curl-setopt.php.')
                                                 ->end()
                                             ->end()
                                             ->scalarNode('val')
