@@ -66,11 +66,11 @@ class ConsulBag implements \Iterator
      */
     public function getNamed($name)
     {
-        if ('local' === $name)
-            return $this->_local;
-
         if ('default' === $name)
             $name = $this->_defaultName;
+
+        if ('local' === $name)
+            return $this->_local;
 
         if (isset($this->_namedConsuls[$name]))
             return $this->_namedConsuls[$name];
