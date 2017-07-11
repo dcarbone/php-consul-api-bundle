@@ -83,7 +83,7 @@ class ListConfigsCommand extends ContainerAwareCommand
         $output->writeln($out);
         $output->writeln('');
 
-        return 1;
+        return 0;
     }
 
     /**
