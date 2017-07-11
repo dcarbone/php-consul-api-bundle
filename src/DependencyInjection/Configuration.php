@@ -47,7 +47,7 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                         ->prototype('array')
                             ->children()
-                                ->scalarNode('client')
+                                ->scalarNode('http_client')
                                     ->info('Name of Registered Service of an instance of a class that implements Guzzle\'s ClientInterface')
                                 ->end()
                                 ->scalarNode('addr')

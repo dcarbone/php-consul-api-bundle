@@ -8,7 +8,7 @@ In your `composer.json` file:
 ```json
 {
     "require": {
-        "dcarbone/php-consul-api-bundle": "0.5.*"
+        "dcarbone/php-consul-api-bundle": "0.6.*"
     }
 }
 ```
@@ -61,10 +61,11 @@ The available configuration parameters are:
 - http_auth
 - token
 - ca_file
-- cert_file
-- key_file
+- client_cert
+- client_key
 - insecure_skip_verify
-- curl_opts
+- token_in_header
+- http_client
 
 As an example:
 
@@ -75,8 +76,7 @@ consul_api:
             addr:                   hostname.domain.woot
             scheme:                 https
             insecure_skip_verify:   false
-            curl_opts:
-                curlopt_fresh_connect: 1
+            http_client:            ~ # Enter service name of GuzzleHttp\ClientInterface compatible http client you wish to use
 ```
 
 This will create a new service named `consul_api.nifty_name` with the specified configuration options.
