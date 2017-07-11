@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPConsulAPIBundle\Twig;
 
 /*
-   Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+   Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 {
     /** @var array */
     private $_cns;
-    /** @var ConsulBag */
+    /** @var \DCarbone\PHPConsulAPIBundle\Bag\ConsulBag */
     private $_cb;
 
     /**
@@ -72,43 +72,43 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
         return array(
 
             // Client getters
-            new \Twig_SimpleFunction('consul_kv', array($this, 'kv')),
-            new \Twig_SimpleFunction('consul_agent', array($this, 'agent')),
-            new \Twig_SimpleFunction('consul_catalog', array($this, 'catalog')),
-            new \Twig_SimpleFunction('consul_status', array($this, 'status')),
-            new \Twig_SimpleFunction('consul_event', array($this, 'event')),
-            new \Twig_SimpleFunction('consul_health', array($this, 'health')),
-            new \Twig_SimpleFunction('consul_coordinate', array($this, 'coordinate')),
-            new \Twig_SimpleFunction('consul_session', array($this, 'session')),
+            new \Twig_Function('consul_kv', array($this, 'kv')),
+            new \Twig_Function('consul_agent', array($this, 'agent')),
+            new \Twig_Function('consul_catalog', array($this, 'catalog')),
+            new \Twig_Function('consul_status', array($this, 'status')),
+            new \Twig_Function('consul_event', array($this, 'event')),
+            new \Twig_Function('consul_health', array($this, 'health')),
+            new \Twig_Function('consul_coordinate', array($this, 'coordinate')),
+            new \Twig_Function('consul_session', array($this, 'session')),
 
 
             // Shortcuts
-            new \Twig_SimpleFunction('consul_kv_get', array($this, 'kvGet')),
-            new \Twig_SimpleFunction('consul_kv_list', array($this, 'kvList')),
-            new \Twig_SimpleFunction('consul_kv_keys', array($this, 'kvKeys')),
+            new \Twig_Function('consul_kv_get', array($this, 'kvGet')),
+            new \Twig_Function('consul_kv_list', array($this, 'kvList')),
+            new \Twig_Function('consul_kv_keys', array($this, 'kvKeys')),
 
-            new \Twig_SimpleFunction('consul_catalog_services', array($this, 'catalogServices')),
-            new \Twig_SimpleFunction('consul_catalog_service', array($this, 'catalogService')),
-            new \Twig_SimpleFunction('consul_catalog_datacenters', array($this, 'catalogDatacenters')),
-            new \Twig_SimpleFunction('consul_catalog_node', array($this, 'catalogNode')),
-            new \Twig_SimpleFunction('consul_catalog_nodes', array($this, 'catalogNodes')),
+            new \Twig_Function('consul_catalog_services', array($this, 'catalogServices')),
+            new \Twig_Function('consul_catalog_service', array($this, 'catalogService')),
+            new \Twig_Function('consul_catalog_datacenters', array($this, 'catalogDatacenters')),
+            new \Twig_Function('consul_catalog_node', array($this, 'catalogNode')),
+            new \Twig_Function('consul_catalog_nodes', array($this, 'catalogNodes')),
 
-            new \Twig_SimpleFunction('consul_coord_datacenters', array($this, 'coordinateDatacenters')),
-            new \Twig_SimpleFunction('consul_coord_nodes', array($this, 'coordinateNodes')),
+            new \Twig_Function('consul_coord_datacenters', array($this, 'coordinateDatacenters')),
+            new \Twig_Function('consul_coord_nodes', array($this, 'coordinateNodes')),
 
-            new \Twig_SimpleFunction('consul_event_list', array($this, 'eventList')),
+            new \Twig_Function('consul_event_list', array($this, 'eventList')),
 
-            new \Twig_SimpleFunction('consul_health_node', array($this, 'healthNode')),
-            new \Twig_SimpleFunction('consul_health_checks', array($this, 'healthChecks')),
-            new \Twig_SimpleFunction('consul_health_service', array($this, 'healthService')),
-            new \Twig_SimpleFunction('consul_health_state', array($this, 'healthState')),
+            new \Twig_Function('consul_health_node', array($this, 'healthNode')),
+            new \Twig_Function('consul_health_checks', array($this, 'healthChecks')),
+            new \Twig_Function('consul_health_service', array($this, 'healthService')),
+            new \Twig_Function('consul_health_state', array($this, 'healthState')),
 
-            new \Twig_SimpleFunction('consul_session_info', array($this, 'sessionInfo')),
-            new \Twig_SimpleFunction('consul_session_node', array($this, 'sessionNode')),
-            new \Twig_SimpleFunction('consul_session_list', array($this, 'sessionList')),
+            new \Twig_Function('consul_session_info', array($this, 'sessionInfo')),
+            new \Twig_Function('consul_session_node', array($this, 'sessionNode')),
+            new \Twig_Function('consul_session_list', array($this, 'sessionList')),
 
-            new \Twig_SimpleFunction('consul_status_leader', array($this, 'statusLeader')),
-            new \Twig_SimpleFunction('consul_status_peers', array($this, 'statusPeers')),
+            new \Twig_Function('consul_status_leader', array($this, 'statusLeader')),
+            new \Twig_Function('consul_status_peers', array($this, 'statusPeers')),
 
         );
     }
@@ -171,25 +171,25 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param array $params
-     * @return KVPair
+     * @return \DCarbone\PHPConsulAPI\KV\KVPair
      */
     public function newKVPair(array $params = array()) { return new KVPair($params); }
 
     /**
      * @param array $params
-     * @return AgentServiceRegistration
+     * @return \DCarbone\PHPConsulAPI\Agent\AgentServiceRegistration
      */
     public function newAgentServiceRegistration(array $params = array()) { return new AgentServiceRegistration($params); }
 
     /**
      * @param array $params
-     * @return AgentCheckRegistration
+     * @return \DCarbone\PHPConsulAPI\Agent\AgentCheckRegistration
      */
     public function newAgentCheckRegistration(array $params = array()) { return new AgentCheckRegistration($params); }
 
     /**
      * @param array $params
-     * @return SessionEntry
+     * @return \DCarbone\PHPConsulAPI\Session\SessionEntry
      */
     public function newSessionEntry(array $params = array()) { return new SessionEntry($params); }
 

@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPConsulAPIBundle\Bag;
 
 /*
-   Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+   Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ use DCarbone\PHPConsulAPI\Consul;
  */
 class ConsulBag implements \Iterator
 {
-    /** @var Consul[] */
+    /** @var \DCarbone\PHPConsulAPI\Consul[] */
     private $_namedConsuls = array();
     /** @var string */
     private $_defaultName;
@@ -33,7 +33,7 @@ class ConsulBag implements \Iterator
 
     /**
      * ConsulBag constructor.
-     * @param Consul $localConsul
+     * @param \DCarbone\PHPConsulAPI\Consul $localConsul
      * @param string $defaultName
      * @param array $namedConsuls
      */
@@ -45,7 +45,7 @@ class ConsulBag implements \Iterator
     }
 
     /**
-     * @return Consul
+     * @return \DCarbone\PHPConsulAPI\Consul
      */
     public function getLocal()
     {
@@ -53,7 +53,7 @@ class ConsulBag implements \Iterator
     }
 
     /**
-     * @return Consul
+     * @return \DCarbone\PHPConsulAPI\Consul
      */
     public function getDefault()
     {
@@ -62,7 +62,7 @@ class ConsulBag implements \Iterator
 
     /**
      * @param string $name
-     * @return Consul
+     * @return \DCarbone\PHPConsulAPI\Consul|mixed
      */
     public function getNamed($name)
     {

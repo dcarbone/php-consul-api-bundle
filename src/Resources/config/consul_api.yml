@@ -1,4 +1,4 @@
-#  Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+#  Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -14,26 +14,15 @@
 
 services:
 
-    # Default Consul config
-    consul_api.local.config:
-        class: DCarbone\PHPConsulAPI\Config
-        factory: [DCarbone\PHPConsulAPI\Config, newDefaultConfig]
+  # Default Consul config
+  consul_api.local.config:
+    class: DCarbone\PHPConsulAPI\Config
 
-    # Consul client using environment parameters
-    consul_api.local:
-        class: DCarbone\PHPConsulAPI\Consul
+  # Consul client using environment parameters
+  consul_api.local:
+    class: DCarbone\PHPConsulAPI\Consul
 
-    consul_api.bag:
-        class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
-        arguments:
-            - "@consul_api.local"
-
-    # Twig extension registration
-    consul_api.twig.extension:
-        class: DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension
-        public: false
-        arguments:
-            - "@consul_api.bag"
-            - "%consul_api.config_names%"
-        tags:
-            - { name: twig.extension }
+  consul_api.bag:
+    class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
+    arguments:
+      - "@consul_api.local"
