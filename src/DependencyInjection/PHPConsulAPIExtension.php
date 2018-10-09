@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
 
 /*
-   Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+   Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -30,11 +30,13 @@ use Symfony\Component\DependencyInjection\Reference;
  * Class PHPConsulAPIExtension
  * @package DCarbone\PHPConsulAPIBundle\DependencyInjection
  */
-class PHPConsulAPIExtension extends Extension {
+class PHPConsulAPIExtension extends Extension
+{
     /**
      * @return string
      */
-    public function getAlias() {
+    public function getAlias()
+    {
         return 'consul_api';
     }
 
@@ -43,7 +45,8 @@ class PHPConsulAPIExtension extends Extension {
      * @param ContainerBuilder $container
      * @return Configuration
      */
-    public function getConfiguration(array $config, ContainerBuilder $container) {
+    public function getConfiguration(array $config, ContainerBuilder $container)
+    {
         return new Configuration();
     }
 
@@ -55,8 +58,9 @@ class PHPConsulAPIExtension extends Extension {
      *
      * @throws \InvalidArgumentException When provided tag is not defined in this extension
      */
-    public function load(array $configs, ContainerBuilder $container) {
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+    public function load(array $configs, ContainerBuilder $container)
+    {
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('consul_api.yml');
 
         $bundles = $container->getParameter('kernel.bundles');
@@ -72,7 +76,7 @@ class PHPConsulAPIExtension extends Extension {
 
         $configNames = [];
 
-        foreach($namedConfigurations as $name => $conf) {
+        foreach ($namedConfigurations as $name => $conf) {
             $configNames[] = $name;
             $this->_addServiceDefinition($name, $conf, $container);
         }
@@ -83,7 +87,7 @@ class PHPConsulAPIExtension extends Extension {
         $bag->addArgument(new Parameter('consul_api.default_configuration_name'));
 
         $namedConsuls = [];
-        foreach($configNames as $configName) {
+        foreach ($configNames as $configName) {
             $namedConsuls[$configName] = new Reference(sprintf('consul_api.%s', $configName));
         }
         $bag->addArgument($namedConsuls);
@@ -94,7 +98,7 @@ class PHPConsulAPIExtension extends Extension {
         if (isset($bundles['TwigBundle'])) {
             $service = new Definition(
                 PHPConsulAPITwigExtension::class,
-                array(new Reference('consul_api.bag'), new Parameter('consul_api.config_names'))
+                [new Reference('consul_api.bag'), new Parameter('consul_api.config_names')]
             );
 
             $service->addTag('twig.extension');
@@ -108,7 +112,8 @@ class PHPConsulAPIExtension extends Extension {
      * @param array $conf
      * @param ContainerBuilder $container
      */
-    private function _addServiceDefinition($name, array $conf, ContainerBuilder $container) {
+    private function _addServiceDefinition($name, array $conf, ContainerBuilder $container)
+    {
         $serviceName = sprintf('consul_api.%s', $name);
         $configName = sprintf('%s.config', $serviceName);
 
@@ -129,23 +134,24 @@ class PHPConsulAPIExtension extends Extension {
      * @param array $conf
      * @return Definition
      */
-    private function _newConfigDefinition(array $conf) {
+    private function _newConfigDefinition(array $conf)
+    {
         static $mapping = [
-            'http_client' => 'HttpClient',
-            'addr' => 'Address',
-            'scheme' => 'Scheme',
-            'datacenter' => 'Datacenter',
-            'http_auth' => 'HttpAuth',
-            'token' => 'Token',
-            'ca_file' => 'CAFile',
-            'client_cert' => 'CertFile',
-            'client_key' => 'KeyFile',
+            'http_client'          => 'HttpClient',
+            'addr'                 => 'Address',
+            'scheme'               => 'Scheme',
+            'datacenter'           => 'Datacenter',
+            'http_auth'            => 'HttpAuth',
+            'token'                => 'Token',
+            'ca_file'              => 'CAFile',
+            'client_cert'          => 'CertFile',
+            'client_key'           => 'KeyFile',
             'insecure_skip_verify' => 'InsecureSkipVerify',
-            'token_in_header' => 'TokenInHeader',
+            'token_in_header'      => 'TokenInHeader',
         ];
 
         $args = [];
-        foreach($conf as $k => $v){
+        foreach ($conf as $k => $v) {
             if (isset($mapping[$k])) {
                 if ('http_client' === $k) {
                     $args[$mapping[$k]] = new Reference($v);

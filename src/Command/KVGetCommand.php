@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
-   Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+   Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -38,8 +38,7 @@ class KVGetCommand extends AbstractPHPConsulAPICommand
                 'key',
                 InputArgument::REQUIRED,
                 'Key to retrieve value for'
-            )
-        ;
+            );
     }
 
     /**
@@ -56,9 +55,8 @@ class KVGetCommand extends AbstractPHPConsulAPICommand
         /** @var \DCarbone\PHPConsulAPI\Error $err */
         list($kvp, $qm, $err) = $consul->KV->get($input->getArgument('key'));
 
-        if (null !== $err)
-        {
-            $output->writeln('ERROR: '.$err->getMessage());
+        if (null !== $err) {
+            $output->writeln('ERROR: ' . $err->getMessage());
             return 1;
         }
 

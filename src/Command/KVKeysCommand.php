@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
-   Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+   Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -38,8 +38,7 @@ class KVKeysCommand extends AbstractPHPConsulAPICommand
                 'prefix',
                 InputArgument::OPTIONAL,
                 'Prefix to look under for KVP keys'
-            )
-        ;
+            );
     }
 
     /**
@@ -57,9 +56,8 @@ class KVKeysCommand extends AbstractPHPConsulAPICommand
         /** @var \DCarbone\PHPConsulAPI\QueryMeta $qm */
         /** @var \DCarbone\PHPConsulAPI\Error $err */
         list($keys, $qm, $err) = $consul->KV->keys($prefix);
-        if (null !== $err)
-        {
-            $output->writeln('ERROR: '.$err->getMessage());
+        if (null !== $err) {
+            $output->writeln('ERROR: ' . $err->getMessage());
             return 1;
         }
 

@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
-   Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+   Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
    limitations under the License.
 */
 
-use DCarbone\PHPConsulAPI\Config;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -32,24 +31,10 @@ class ListConfigsCommand extends ContainerAwareCommand
     private $_longestConfigName = 0;
 
     /** @var array */
-    private $_curlConstants;
-
-    /** @var array */
     private static $_preOut = [
         'PHP Consul API Configurations:',
         '  default',
     ];
-
-    /**
-     * ListConfigsCommand constructor.
-     * @param null|string $name
-     */
-    public function __construct($name = null)
-    {
-        parent::__construct($name);
-        $constants = get_defined_constants(true);
-        $this->_curlConstants = array_flip($constants['curl']);
-    }
 
     /**
      * Configure this command
@@ -64,8 +49,7 @@ class ListConfigsCommand extends ContainerAwareCommand
                 'd',
                 InputOption::VALUE_NONE,
                 'Dump configuration'
-            )
-        ;
+            );
     }
 
     /**
@@ -75,10 +59,11 @@ class ListConfigsCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($input->getOption('dump'))
+        if ($input->getOption('dump')) {
             $out = $this->_buildDumpOutput($input, $output);
-        else
+        } else {
             $out = $this->_buildSimpleOutput($input, $output);
+        }
 
         $output->writeln($out);
         $output->writeln('');
@@ -94,8 +79,7 @@ class ListConfigsCommand extends ContainerAwareCommand
     private function _buildSimpleOutput(InputInterface $input, OutputInterface $output)
     {
         $out = self::$_preOut;
-        foreach($this->getContainer()->getParameter('consul_api.config_names') as $name)
-        {
+        foreach ($this->getContainer()->getParameter('consul_api.config_names') as $name) {
             $out[] = sprintf('  %s', $name);
         }
         return $out;
@@ -112,36 +96,25 @@ class ListConfigsCommand extends ContainerAwareCommand
 
         $container = $this->getContainer();
 
-        foreach($container->get('consul_api.default.config') as $k => $v)
-        {
-            if ($this->_longestConfigName < ($len = strlen($k)))
+        $defaultConfig = $container->get('consul_api.default.config');
+        foreach ($defaultConfig as $k => $v) {
+            if ($this->_longestConfigName < ($len = strlen($k))) {
                 $this->_longestConfigName = $len;
-
-            if ('AdditionalCurlOpts' === $k)
-            {
-                if (0 < count($v))
-                    $out = array_merge($out, $this->_buildCurlOptOutput($v));
             }
-            else if ($v !== null)
-            {
+
+            if ($v !== null) {
                 $out[] = sprintf('    %s: %s', $k, $this->_getValueOutput($v));
             }
         }
 
         $out[] = '';
 
-        foreach($container->getParameter('consul_api.config_names') as $name)
-        {
+        $names = $container->getParameter('consul_api.config_names');
+        foreach ($names as $name) {
             $out[] = sprintf('  %s', $name);
-            foreach($container->get(sprintf('consul_api.%s.config', $name)) as $k => $v)
-            {
-                if ('AdditionalCurlOpts' === $k)
-                {
-                    if (0 < count($v))
-                        $out = array_merge($out, $this->_buildCurlOptOutput($v));
-                }
-                else if ($v !== null)
-                {
+            $nameConfig = $container->get(sprintf('consul_api.%s.config', $name));
+            foreach ($nameConfig as $k => $v) {
+                if ($v !== null) {
                     $out[] = sprintf('    %s: %s', $k, $this->_getValueOutput($v));
                 }
             }
@@ -158,8 +131,7 @@ class ListConfigsCommand extends ContainerAwareCommand
      */
     private function _getValueOutput($value)
     {
-        switch(gettype($value))
-        {
+        switch (gettype($value)) {
             case 'resource':
                 return get_resource_type($value);
 
@@ -176,24 +148,5 @@ class ListConfigsCommand extends ContainerAwareCommand
             default:
                 return (string)$value;
         }
-    }
-
-    /**
-     * @param array $curlopts
-     * @return array
-     */
-    private function _buildCurlOptOutput(array $curlopts)
-    {
-        $out = [];
-
-        foreach($curlopts as $k => $v)
-        {
-            if (isset($this->_curlConstants[$k]))
-                $out[] = sprintf('      %s:  %s', $this->_curlConstants[$k], $this->_getValueOutput($v));
-            else
-                $out[] = sprintf('      %s:  %s', $k, $this->_getValueOutput($v));
-        }
-
-        return $out;
     }
 }

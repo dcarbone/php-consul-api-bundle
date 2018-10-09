@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPConsulAPIBundle\Bag;
 
 /*
-   Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+   Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ use DCarbone\PHPConsulAPI\Consul;
 class ConsulBag implements \Iterator
 {
     /** @var \DCarbone\PHPConsulAPI\Consul[] */
-    private $_namedConsuls = array();
+    private $_namedConsuls = [];
     /** @var string */
     private $_defaultName;
     /** @var Consul */
@@ -37,7 +37,7 @@ class ConsulBag implements \Iterator
      * @param string $defaultName
      * @param array $namedConsuls
      */
-    public function __construct(Consul $localConsul, $defaultName, array $namedConsuls = array())
+    public function __construct(Consul $localConsul, $defaultName, array $namedConsuls = [])
     {
         $this->_local = $localConsul;
         $this->_namedConsuls = $namedConsuls;
@@ -66,14 +66,17 @@ class ConsulBag implements \Iterator
      */
     public function getNamed($name)
     {
-        if ('default' === $name)
+        if ('default' === $name) {
             $name = $this->_defaultName;
+        }
 
-        if ('local' === $name)
+        if ('local' === $name) {
             return $this->_local;
+        }
 
-        if (isset($this->_namedConsuls[$name]))
+        if (isset($this->_namedConsuls[$name])) {
             return $this->_namedConsuls[$name];
+        }
 
         throw new \OutOfBoundsException(sprintf(
             'There is no Consul Configuration registered with name "%s".  Available configurations: ["%s"]',
