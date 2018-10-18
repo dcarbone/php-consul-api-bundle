@@ -21,6 +21,9 @@
   "require-dev": {
     "symfony/templating": "~4.0"
   },
+  "suggest": {
+    "symfony/cache": "Allows to cache Consul KV environment variables requests results"
+  },
   "autoload": {
     "psr-4": {
       "DCarbone\\PHPConsulAPIBundle\\": "src/"

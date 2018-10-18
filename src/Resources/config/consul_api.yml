@@ -21,8 +21,12 @@ services:
   # Consul client using environment parameters
   consul_api.local:
     class: DCarbone\PHPConsulAPI\Consul
+    abstract: true
 
   consul_api.bag:
     class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
     arguments:
     - "@consul_api.local"
+
+  consul_api.default_guzzle_client:
+    class: GuzzleHttp\Client

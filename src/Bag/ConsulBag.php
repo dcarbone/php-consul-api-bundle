@@ -28,28 +28,16 @@ class ConsulBag implements \Iterator
     private $_namedConsuls = [];
     /** @var string */
     private $_defaultName;
-    /** @var Consul */
-    private $_local;
 
     /**
      * ConsulBag constructor.
-     * @param \DCarbone\PHPConsulAPI\Consul $localConsul
      * @param string $defaultName
      * @param array $namedConsuls
      */
-    public function __construct(Consul $localConsul, $defaultName, array $namedConsuls = [])
+    public function __construct($defaultName, array $namedConsuls = [])
     {
-        $this->_local = $localConsul;
         $this->_namedConsuls = $namedConsuls;
         $this->_defaultName = $defaultName;
-    }
-
-    /**
-     * @return \DCarbone\PHPConsulAPI\Consul
-     */
-    public function getLocal()
-    {
-        return $this->_local;
     }
 
     /**
@@ -68,10 +56,6 @@ class ConsulBag implements \Iterator
     {
         if ('default' === $name) {
             $name = $this->_defaultName;
-        }
-
-        if ('local' === $name) {
-            return $this->_local;
         }
 
         if (isset($this->_namedConsuls[$name])) {

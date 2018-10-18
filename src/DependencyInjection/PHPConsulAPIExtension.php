@@ -21,6 +21,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Parameter;
@@ -57,6 +58,7 @@ class PHPConsulAPIExtension extends Extension
      * @param ContainerBuilder $container A ContainerBuilder instance
      *
      * @throws \InvalidArgumentException When provided tag is not defined in this extension
+     * @throws \Exception
      */
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -69,7 +71,7 @@ class PHPConsulAPIExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $defaultConfiguration = $config['default_configuration'];
-        $namedConfigurations = $config['named_configurations'];
+        $namedConfigurations = $config['backends'];
 
         $container->setParameter('consul_api.default_configuration_name', $defaultConfiguration);
         $container->setAlias('consul_api.default.config', sprintf('consul_api.%s.config', $defaultConfiguration));
@@ -94,6 +96,8 @@ class PHPConsulAPIExtension extends Extension
 
         $container->setAlias('consul_api.default', sprintf('consul_api.%s', $defaultConfiguration));
 
+        $this->addEnvListener($config, $container);
+
         // Load twig extension if twig is loaded
         if (isset($bundles['TwigBundle'])) {
             $service = new Definition(
@@ -105,6 +109,34 @@ class PHPConsulAPIExtension extends Extension
 
             $container->setDefinition('consul_api.twig.extension', $service);
         }
+
+    }
+
+    protected function addEnvListener($config, ContainerBuilder $builder){
+
+        if(!$config['resolve_env']['enabled']){
+            return;
+        }
+
+        $args = [
+            new Reference('consul_api.bag')
+        ];
+
+        if($config['resolve_env']['cache_service']){
+
+            $service = $config['resolve_env']['cache_service'];
+
+            $args[] = new Reference($service);
+
+//            $def = $builder->findDefinition($service);
+//            $tags = $def->getTags();
+
+        }
+
+        $definition = new Definition(EnvVarProcessor::class, $args);
+        $definition->addTag('container.env_var_processor');
+        $builder->setDefinition('consul', $definition);
+
     }
 
     /**
@@ -119,7 +151,7 @@ class PHPConsulAPIExtension extends Extension
 
         $container->setDefinition(
             $configName,
-            $this->_newConfigDefinition($conf)
+            $this->_newConfigDefinition($conf, $container)
         );
 
         $service = $container->setDefinition(
@@ -134,7 +166,7 @@ class PHPConsulAPIExtension extends Extension
      * @param array $conf
      * @return Definition
      */
-    private function _newConfigDefinition(array $conf)
+    private function _newConfigDefinition(array $conf, ContainerBuilder $builder)
     {
         static $mapping = [
             'http_client'          => 'HttpClient',
@@ -153,7 +185,7 @@ class PHPConsulAPIExtension extends Extension
         $args = [];
         foreach ($conf as $k => $v) {
             if (isset($mapping[$k])) {
-                if ('http_client' === $k) {
+                if ('http_client' === $k && $v) {
                     $args[$mapping[$k]] = new Reference($v);
                 } else {
                     $args[$mapping[$k]] = $v;
