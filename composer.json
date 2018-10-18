@@ -1,7 +1,7 @@
 {
   "name": "dcarbone/php-consul-api-bundle",
   "type": "symfony-bundle",
-  "description": "Bundle to enable usage of dcarbone/php-consul-api inside of a Symfony 3 project",
+  "description": "Bundle to enable usage of dcarbone/php-consul-api inside of a Symfony 4 project",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -14,12 +14,12 @@
     "ext-json": "*",
     "ext-curl": "*",
     "dcarbone/php-consul-api": "0.6.*",
-    "symfony/framework-bundle": "~3.0",
-    "symfony/yaml": "^3.0",
-    "symfony/console": "~3.0"
+    "symfony/framework-bundle": "~4.0",
+    "symfony/yaml": "^4.0",
+    "symfony/console": "~4.0"
   },
   "require-dev": {
-    "symfony/twig-bundle": "~3.0"
+    "symfony/templating": "~4.0"
   },
   "autoload": {
     "psr-4": {
