@@ -68,6 +68,14 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->useAttributeAsKey('name')
                         ->prototype('array')
+                        ->beforeNormalization()
+                        ->ifString()
+                        ->then(function($value){
+                            return [
+                                'addr'=>$value
+                            ];
+                        })
+                        ->end()
                             ->children()
                                 ->arrayNode('resolve_env')
                                 ->addDefaultsIfNotSet()

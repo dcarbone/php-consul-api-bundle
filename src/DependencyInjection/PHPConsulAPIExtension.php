@@ -16,12 +16,13 @@
    limitations under the License.
 */
 
+use DCarbone\PHPConsulAPIBundle\Cache\Persister;
 use DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Exception\RuntimeException;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Parameter;
@@ -74,7 +75,6 @@ class PHPConsulAPIExtension extends Extension
         $namedConfigurations = $config['backends'];
 
         $container->setParameter('consul_api.default_configuration_name', $defaultConfiguration);
-        $container->setAlias('consul_api.default.config', sprintf('consul_api.%s.config', $defaultConfiguration));
 
         $configNames = [];
 
@@ -92,11 +92,12 @@ class PHPConsulAPIExtension extends Extension
         foreach ($configNames as $configName) {
             $namedConsuls[$configName] = new Reference(sprintf('consul_api.%s', $configName));
         }
+
         $bag->addArgument($namedConsuls);
 
-        $container->setAlias('consul_api.default', sprintf('consul_api.%s', $defaultConfiguration));
-
-        $this->addEnvListener($config, $container);
+        foreach ($config['backends'] as $name => $b) {
+            $this->addEnvListener($name, $b, $container);
+        }
 
         // Load twig extension if twig is loaded
         if (isset($bundles['TwigBundle'])) {
@@ -112,32 +113,57 @@ class PHPConsulAPIExtension extends Extension
 
     }
 
-    protected function addEnvListener($config, ContainerBuilder $builder){
+    protected function addEnvListener($name, $config, ContainerBuilder $builder)
+    {
 
-        if(!$config['resolve_env']['enabled']){
+        if (empty($config['resolve_env']['enabled'])) {
             return;
         }
 
-        $args = [
-            new Reference('consul_api.bag')
+        $namePrefix = $name == 'default' ? 'consul' : 'consul_' . $name;
+
+        EnvVarProcessor::addProvidedType($namePrefix);
+
+        $arguments = [
+            new Reference(sprintf('consul_api.%s', $name))
         ];
 
-        if($config['resolve_env']['cache_service']){
+        if (!empty($config['resolve_env']['cache'])) {
 
-            $service = $config['resolve_env']['cache_service'];
+            // todo: docs about decoration of persister
 
-            $args[] = new Reference($service);
+            $name = sprintf('consul_api.%s.cache_persister', $name);
 
-//            $def = $builder->findDefinition($service);
-//            $tags = $def->getTags();
+            if(is_numeric($config['resolve_env']['cache']) && class_exists('\Symfony\Component\Cache\Adapter\PhpFilesAdapter')){
+
+                $childDef = new ChildDefinition('consul_api.cache_persister');
+                $childDef->setArgument(1, (int)$config['resolve_env']['cache']);
+                $builder->setDefinition($name, $childDef);
+
+                $arguments[] = new Reference($name);
+            }else{
+
+                $def = new Definition(Persister::class, [
+                    new Reference($config['resolve_env']['cache'])
+                ]);
+
+
+
+                $builder->setDefinition($name, $def);
+
+                $arguments[] = new Reference($name);
+                // todo: check if adapter implements cacheinterface
+            }
 
         }
 
-        $definition = new Definition(EnvVarProcessor::class, $args);
+        $definition = new Definition(EnvVarProcessor::class, $arguments);
+
         $definition->addTag('container.env_var_processor');
-        $builder->setDefinition('consul', $definition);
+        $builder->setDefinition($namePrefix, $definition);
 
     }
+
 
     /**
      * @param string $name
@@ -156,7 +182,7 @@ class PHPConsulAPIExtension extends Extension
 
         $service = $container->setDefinition(
             $serviceName,
-            new ChildDefinition('consul_api.local')
+            new ChildDefinition('consul_api.prototype')
         );
 
         $service->setArguments([new Reference($configName)]);
@@ -169,17 +195,17 @@ class PHPConsulAPIExtension extends Extension
     private function _newConfigDefinition(array $conf, ContainerBuilder $builder)
     {
         static $mapping = [
-            'http_client'          => 'HttpClient',
-            'addr'                 => 'Address',
-            'scheme'               => 'Scheme',
-            'datacenter'           => 'Datacenter',
-            'http_auth'            => 'HttpAuth',
-            'token'                => 'Token',
-            'ca_file'              => 'CAFile',
-            'client_cert'          => 'CertFile',
-            'client_key'           => 'KeyFile',
+            'http_client' => 'HttpClient',
+            'addr' => 'Address',
+            'scheme' => 'Scheme',
+            'datacenter' => 'Datacenter',
+            'http_auth' => 'HttpAuth',
+            'token' => 'Token',
+            'ca_file' => 'CAFile',
+            'client_cert' => 'CertFile',
+            'client_key' => 'KeyFile',
             'insecure_skip_verify' => 'InsecureSkipVerify',
-            'token_in_header'      => 'TokenInHeader',
+            'token_in_header' => 'TokenInHeader',
         ];
 
         $args = [];

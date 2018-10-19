@@ -19,14 +19,26 @@ services:
     class: DCarbone\PHPConsulAPI\Config
 
   # Consul client using environment parameters
-  consul_api.local:
+  consul_api.prototype:
     class: DCarbone\PHPConsulAPI\Consul
     abstract: true
 
+  consul_api.default_cache:
+    class: Symfony\Component\Cache\Adapter\PhpFilesAdapter
+    lazy: true
+    arguments:
+      - 'consul_api'
+
+  consul_api.cache_persister:
+    class: DCarbone\PHPConsulAPIBundle\Cache\Persister
+    arguments:
+    - '@consul_api.default_cache'
+
   consul_api.bag:
     class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
-    arguments:
-    - "@consul_api.local"
 
   consul_api.default_guzzle_client:
     class: GuzzleHttp\Client
+
+  DCarbone\PHPConsulAPIBundle\DependencyInjection\EnvVarProcessor:
+    abstract: true
