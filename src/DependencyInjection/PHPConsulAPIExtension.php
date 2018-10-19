@@ -132,26 +132,24 @@ class PHPConsulAPIExtension extends Extension
 
             // todo: docs about decoration of persister
 
-            $name = sprintf('consul_api.%s.cache_persister', $name);
+            $cacheName = sprintf('consul_api.%s.cache_persister', $name);
 
             if(is_numeric($config['resolve_env']['cache']) && class_exists('\Symfony\Component\Cache\Adapter\PhpFilesAdapter')){
 
                 $childDef = new ChildDefinition('consul_api.cache_persister');
                 $childDef->setArgument(1, (int)$config['resolve_env']['cache']);
-                $builder->setDefinition($name, $childDef);
+                $childDef->setPrivate(false);
 
-                $arguments[] = new Reference($name);
+                $builder->setDefinition($cacheName, $childDef);
+
+                $arguments[] = $childDef;
             }else{
 
                 $def = new Definition(Persister::class, [
                     new Reference($config['resolve_env']['cache'])
                 ]);
 
-
-
-                $builder->setDefinition($name, $def);
-
-                $arguments[] = new Reference($name);
+                $arguments[] = $def;
                 // todo: check if adapter implements cacheinterface
             }
 

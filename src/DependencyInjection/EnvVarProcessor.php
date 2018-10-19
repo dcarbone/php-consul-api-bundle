@@ -49,7 +49,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
     {
         $key = $this->getKey($name);
 
-        if($result = $this->cache->get($name, $prefix)){
+        if($this->cache && $result = $this->cache->get($name, $prefix)){
             return $result;
         }
 
