@@ -39,6 +39,8 @@ class KVGetCommand extends AbstractPHPConsulAPICommand
                 InputArgument::REQUIRED,
                 'Key to retrieve value for'
             );
+
+        parent::configure();
     }
 
     /**
