@@ -7,23 +7,27 @@
     {
       "name": "Daniel Carbone",
       "email": "daniel.p.carbone@gmail.com"
+    },
+    {
+      "name":  "Przemyslaw eRIZ Pawliczuk",
+      "homepage": "http://github.com/er1z"
     }
   ],
   "require": {
-    "php": ">=5.6.0",
+    "php": ">=7.1",
     "ext-json": "*",
     "ext-curl": "*",
     "dcarbone/php-consul-api": "0.6.*",
     "symfony/framework-bundle": "~4.0",
     "symfony/yaml": "^4.0",
-    "symfony/console": "~4.0"
+    "symfony/console": "~4.0",
+    "psr/cache": "^1.0"
   },
   "require-dev": {
-    "symfony/templating": "~4.0",
-    ""
+    "symfony/templating": "~4.0"
   },
   "suggest": {
-    "symfony/cache": "Allows to cache Consul KV environment variables requests results"
+    "psr/cache-implementation": "Allows to cache Consul KV environment variables requests results"
   },
   "autoload": {
     "psr-4": {

@@ -93,7 +93,7 @@ Syntax:
 %env(consul[_<backend name>]:<path with "__" instead of "/">)%
 ```
 
-This syntax is processed just like a pure environment variables, so the case:
+This syntax is processed just like pure environment variables, so the case:
 
 ```yaml
 parameters:
