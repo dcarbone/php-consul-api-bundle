@@ -25,12 +25,12 @@ class Persister implements PersisterInterface
         $this->defaultTtl = $defaultTtl;
     }
 
-    protected function getCacheItemName($name, $prefix)
+    protected function getCacheItemName($name, $prefix): string
     {
         return $prefix . crc32($name);
     }
 
-    public function get(string $name, $prefix = null)
+    public function get(string $name, string $prefix = null)
     {
         try {
             $result = $this->pool->getItem($this->getCacheItemName($name, $prefix));
@@ -42,19 +42,19 @@ class Persister implements PersisterInterface
         }
     }
 
-    public function set(string $name, $value = null, $prefix = null)
+    public function set(string $name, $value = null, string $prefix = null)
     {
         $item = $this->pool->getItem(
             $this->getCacheItemName($name, $prefix)
         );
         $item->set($value);
 
-        $this->decorateItem($item);
+        $this->decorateItem($item, $prefix);
 
         $this->pool->save($item);
     }
 
-    public function decorateItem(CacheItemInterface $item)
+    public function decorateItem(CacheItemInterface $item, string $prefix = null)
     {
         $item->expiresAfter($this->defaultTtl);
     }

@@ -36,11 +36,10 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * PHPConsulAPIExtension constructor.
      * @param ConsulBag $consulBag
-     * @param array $configNames
      */
-    public function __construct(ConsulBag $consulBag, array $configNames)
+    public function __construct(ConsulBag $consulBag)
     {
-        $this->_cns = $configNames;
+        $this->_cns = $consulBag->getNames();
         $this->_cb = $consulBag;
     }
 

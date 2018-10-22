@@ -6,7 +6,7 @@ use Psr\Cache\CacheItemInterface;
 
 interface PersisterInterface
 {
-    public function get(string $name);
-    public function set(string $name, $value = null);
-    public function decorateItem(CacheItemInterface $item);
+    public function get(string $name, string $prefix = null);
+    public function set(string $name, $value = null, string $prefix = null);
+    public function decorateItem(CacheItemInterface $item, string $prefix = null);
 }

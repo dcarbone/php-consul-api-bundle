@@ -12,38 +12,40 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-parameters:
-  consul_api.processor_adapter_class: '\DCarbone\PHPConsulAPIBundle\Processor\Adapter'
-
 services:
 
   # Default Consul config
   consul_api.local.config:
-    class: DCarbone\PHPConsulAPI\Config
+    class: 'DCarbone\PHPConsulAPI\Config'
 
   # Consul client using environment parameters
   consul_api.prototype:
-    class: DCarbone\PHPConsulAPI\Consul
+    class: 'DCarbone\PHPConsulAPI\Consul'
     abstract: true
 
   consul_api.default_cache:
-    class: Symfony\Component\Cache\Adapter\PhpFilesAdapter
+    class: 'Symfony\Component\Cache\Adapter\PhpFilesAdapter'
     lazy: true
     arguments:
       - 'consul_api'
 
-  consul_api.cache_persister:
-    class: DCarbone\PHPConsulAPIBundle\Cache\Persister
+  consul_api.default_cache_persister:
+    class: 'DCarbone\PHPConsulAPIBundle\Cache\Persister'
     arguments:
     - '@consul_api.default_cache'
 
   consul_api.bag:
-    class: DCarbone\PHPConsulAPIBundle\Bag\ConsulBag
+    class: 'DCarbone\PHPConsulAPIBundle\Bag\ConsulBag'
 
   consul_api.default_guzzle_client:
-    class: GuzzleHttp\Client
+    class: 'GuzzleHttp\Client'
 
   consul_api.env_processor:
     class: 'DCarbone\PHPConsulAPIBundle\DependencyInjection\EnvVarProcessor'
     tags: ['container.env_var_processor']
 
+  consul_api.twig.extension:
+    class: 'DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension'
+    arguments:
+      - '@consul_api.bag'
+    tags: ['twig.extension']

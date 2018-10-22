@@ -22,7 +22,7 @@ use DCarbone\PHPConsulAPI\Consul;
  * Class ConsulBag
  * @package DCarbone\PHPConsulAPIBundle\Bag
  */
-class ConsulBag implements \Iterator
+class ConsulBag implements ConsulBagInterface
 {
     /** @var \DCarbone\PHPConsulAPI\Consul[] */
     private $_namedConsuls = [];
@@ -32,18 +32,15 @@ class ConsulBag implements \Iterator
     /**
      * ConsulBag constructor.
      * @param string $defaultName
-     * @param array $namedConsuls
+     * @param Consul[] $namedConsuls
      */
-    public function __construct($defaultName, array $namedConsuls = [])
+    public function __construct($defaultName = 'default', array $namedConsuls = [])
     {
         $this->_namedConsuls = $namedConsuls;
         $this->_defaultName = $defaultName;
     }
 
-    /**
-     * @return \DCarbone\PHPConsulAPI\Consul
-     */
-    public function getDefault()
+    public function getDefault(): Consul
     {
         return $this->getNamed($this->_defaultName);
     }
@@ -52,7 +49,7 @@ class ConsulBag implements \Iterator
      * @param string $name
      * @return \DCarbone\PHPConsulAPI\Consul|mixed
      */
-    public function getNamed($name)
+    public function getNamed($name): Consul
     {
         if ('default' === $name) {
             $name = $this->_defaultName;

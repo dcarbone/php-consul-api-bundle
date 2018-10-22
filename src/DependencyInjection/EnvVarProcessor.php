@@ -1,14 +1,14 @@
 <?php
 namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
 
-use DCarbone\PHPConsulAPIBundle\Processor\Adapter;
+use DCarbone\PHPConsulAPIBundle\Processor\AdapterInterface;
 use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
 
 
 class EnvVarProcessor implements EnvVarProcessorInterface
 {
     /**
-     * @var Adapter[]
+     * @var AdapterInterface[]
      */
     static private $adapters = [];
 
@@ -28,7 +28,7 @@ class EnvVarProcessor implements EnvVarProcessorInterface
         self::$providedTypes[$prefix] = 'string';
     }
 
-    public static function addAdapter(string $prefix, Adapter $adapter)
+    public static function addAdapter(string $prefix, AdapterInterface $adapter)
     {
         self::$adapters[$prefix] = $adapter;
     }

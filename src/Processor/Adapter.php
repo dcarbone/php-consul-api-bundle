@@ -3,10 +3,10 @@ namespace DCarbone\PHPConsulAPIBundle\Processor;
 
 
 use DCarbone\PHPConsulAPI\Consul;
-use DCarbone\PHPConsulAPIBundle\Cache\Persister;
+use DCarbone\PHPConsulAPIBundle\Cache\PersisterInterface;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
-class Adapter
+class Adapter implements AdapterInterface
 {
 
     /**
@@ -14,16 +14,16 @@ class Adapter
      */
     private $consul;
     /**
-     * @var null|Persister
+     * @var null|PersisterInterface
      */
     private $cache;
 
     /**
      * EnvVarProcessor constructor.
      * @param Consul $consul
-     * @param null|Persister $cache
+     * @param null|PersisterInterface $cache
      */
-    public function __construct(Consul $consul, ?Persister $cache = null)
+    public function __construct(Consul $consul, ?PersisterInterface $cache = null)
     {
         $this->consul = $consul;
         $this->cache = $cache;
