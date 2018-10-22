@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -20,8 +22,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * Class Configuration
- * @package DCarbone\PHPConsulAPIBundle
+ * Class Configuration.
  */
 class Configuration implements ConfigurationInterface
 {
@@ -36,9 +37,9 @@ class Configuration implements ConfigurationInterface
         $root
             ->beforeNormalization()
             ->ifNull()
-                ->then(function(){
-                    return ['backends'=>[
-                        'default'=>[]
+                ->then(function () {
+                    return ['backends' => [
+                        'default' => [],
                     ]];
                 })
             ->end()
@@ -54,25 +55,25 @@ class Configuration implements ConfigurationInterface
                     ->requiresAtLeastOneElement()
                     ->beforeNormalization()
                     ->ifString()
-                        ->then(function($value) {
-                            return ['default'=>[
-                                'addr'=>$value
+                        ->then(function ($value) {
+                            return ['default' => [
+                                'addr' => $value,
                             ]];
                         })
                     ->end()
                     ->beforeNormalization()
                     ->ifNull()
-                        ->then(function(){
-                            return ['default'=>[]];
+                        ->then(function () {
+                            return ['default' => []];
                         })
                     ->end()
                     ->useAttributeAsKey('name')
                         ->prototype('array')
                         ->beforeNormalization()
                         ->ifString()
-                        ->then(function($value){
+                        ->then(function ($value) {
                             return [
-                                'addr'=>$value
+                                'addr' => $value,
                             ];
                         })
                         ->end()

@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Command;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -21,13 +23,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class KVKeysCommand
- * @package DCarbone\PHPConsulAPIBundle\Command
+ * Class KVKeysCommand.
  */
 class KVKeysCommand extends AbstractPHPConsulAPICommand
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function configure()
     {
@@ -42,8 +43,9 @@ class KVKeysCommand extends AbstractPHPConsulAPICommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -57,11 +59,13 @@ class KVKeysCommand extends AbstractPHPConsulAPICommand
         /** @var \DCarbone\PHPConsulAPI\Error $err */
         list($keys, $qm, $err) = $consul->KV->keys($prefix);
         if (null !== $err) {
-            $output->writeln('ERROR: ' . $err->getMessage());
+            $output->writeln('ERROR: '.$err->getMessage());
+
             return 1;
         }
 
         $output->writeln($keys);
+
         return 0;
     }
 }

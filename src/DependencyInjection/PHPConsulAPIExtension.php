@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -28,8 +30,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Class PHPConsulAPIExtension
- * @package DCarbone\PHPConsulAPIBundle\DependencyInjection
+ * Class PHPConsulAPIExtension.
  */
 class PHPConsulAPIExtension extends Extension
 {
@@ -42,8 +43,9 @@ class PHPConsulAPIExtension extends Extension
     }
 
     /**
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
+     *
      * @return Configuration
      */
     public function getConfiguration(array $config, ContainerBuilder $container)
@@ -54,7 +56,7 @@ class PHPConsulAPIExtension extends Extension
     /**
      * Loads a specific configuration.
      *
-     * @param array $configs An array of configuration values
+     * @param array            $configs   An array of configuration values
      * @param ContainerBuilder $container A ContainerBuilder instance
      *
      * @throws \InvalidArgumentException When provided tag is not defined in this extension
@@ -62,7 +64,7 @@ class PHPConsulAPIExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('consul_api.yml');
 
         $bundles = $container->getParameter('kernel.bundles');
@@ -79,7 +81,8 @@ class PHPConsulAPIExtension extends Extension
         }
     }
 
-    protected function addBackends(array $config, ContainerBuilder $container){
+    protected function addBackends(array $config, ContainerBuilder $container)
+    {
         $bag = $container->getDefinition('consul_api.bag');
 
         $backendDefinitions = [];
@@ -93,15 +96,14 @@ class PHPConsulAPIExtension extends Extension
 
     protected function addEnvListener($name, $config, ContainerBuilder $builder)
     {
-
         if (empty($config['resolve_env']['enabled'])) {
             return;
         }
 
-        $namePrefix = $name == 'default' ? 'consul' : 'consul_' . $name;
+        $namePrefix = 'default' == $name ? 'consul' : 'consul_'.$name;
 
         $arguments = [
-            new Reference(sprintf('consul_api.%s', $name))
+            new Reference(sprintf('consul_api.%s', $name)),
         ];
 
         $adapter = new Definition(Adapter::class);
@@ -117,28 +119,23 @@ class PHPConsulAPIExtension extends Extension
 
         $processor = $builder->findDefinition('consul_api.env_processor');
         $processor->addMethodCall('addAdapter', [
-            $namePrefix, new Reference($definitionId)
+            $namePrefix, new Reference($definitionId),
         ]);
 
         EnvVarProcessor::addProvidedType($namePrefix);
-
     }
 
     protected function getCacheArgument(array $config, $name, ContainerBuilder $builder): Reference
     {
-
-        if(
+        if (
             is_numeric($config['resolve_env']['cache'])
             && class_exists($builder->findDefinition('consul_api.default_cache')->getClass())
-        ){
-
+        ) {
             $def = new ChildDefinition('consul_api.default_cache_persister');
-            $def->setArgument(1, (int)$config['resolve_env']['cache']);
-
-        }else{
-
+            $def->setArgument(1, (int) $config['resolve_env']['cache']);
+        } else {
             $def = new Definition(Persister::class, [
-                new Reference($config['resolve_env']['cache'])
+                new Reference($config['resolve_env']['cache']),
             ]);
         }
 
@@ -148,11 +145,11 @@ class PHPConsulAPIExtension extends Extension
         return new Reference($srvName);
     }
 
-
     /**
-     * @param string $name
-     * @param array $conf
+     * @param string           $name
+     * @param array            $conf
      * @param ContainerBuilder $container
+     *
      * @return Reference
      */
     private function addServiceDefinition($name, array $conf, ContainerBuilder $container): Reference
@@ -171,9 +168,10 @@ class PHPConsulAPIExtension extends Extension
     }
 
     /**
-     * @param string $name
-     * @param array $conf
+     * @param string           $name
+     * @param array            $conf
      * @param ContainerBuilder $builder
+     *
      * @return Reference
      */
     private function getConfigReference(string $name, array $conf, ContainerBuilder $builder): Reference

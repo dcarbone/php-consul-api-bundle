@@ -1,6 +1,6 @@
 <?php
-namespace DCarbone\PHPConsulAPIBundle\Processor;
 
+namespace DCarbone\PHPConsulAPIBundle\Processor;
 
 use DCarbone\PHPConsulAPI\Consul;
 use DCarbone\PHPConsulAPIBundle\Cache\PersisterInterface;
@@ -8,7 +8,6 @@ use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
 class Adapter implements AdapterInterface
 {
-
     /**
      * @var Consul
      */
@@ -20,7 +19,8 @@ class Adapter implements AdapterInterface
 
     /**
      * EnvVarProcessor constructor.
-     * @param Consul $consul
+     *
+     * @param Consul                  $consul
      * @param null|PersisterInterface $cache
      */
     public function __construct(Consul $consul, ?PersisterInterface $cache = null)
@@ -29,7 +29,8 @@ class Adapter implements AdapterInterface
         $this->cache = $cache;
     }
 
-    protected function getKey($name){
+    protected function getKey($name): string
+    {
         return str_replace('__', '/', $name);
     }
 
@@ -37,7 +38,7 @@ class Adapter implements AdapterInterface
     {
         $key = $this->getKey($name);
 
-        if($this->cache && $result = $this->cache->get($name, $prefix)){
+        if ($this->cache && $result = $this->cache->get($name, $prefix)) {
             return $result;
         }
 
@@ -47,24 +48,21 @@ class Adapter implements AdapterInterface
         $this->checkKvResponse($item, $name, $prefix);
 
         $result = $item[0]->getValue();
-        if($this->cache){
+        if ($this->cache) {
             $this->cache->set($name, $result, $prefix);
         }
 
         return $result;
     }
 
-    protected function checkKvResponse($item, $name, $prefix){
-        if(!($item[0] instanceof \DCarbone\PHPConsulAPI\KV\KVPair)){
-
+    protected function checkKvResponse($item, $name, $prefix)
+    {
+        if (!($item[0] instanceof \DCarbone\PHPConsulAPI\KV\KVPair)) {
             throw new RuntimeException(
                 sprintf('A consul variable "%s" couldn\'t be found (backend: %s)', $name, $prefix)
             );
-
-        }else if($item[2] instanceof \DCarbone\PHPConsulAPI\Error){
+        } elseif ($item[2] instanceof \DCarbone\PHPConsulAPI\Error) {
             throw new RuntimeException($item[2]->getMessage());
         }
     }
-
-
 }

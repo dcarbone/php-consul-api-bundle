@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Command;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -22,8 +24,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class ListConfigsCommand
- * @package DCarbone\PHPConsulAPIBundle\Command
+ * Class ListConfigsCommand.
  */
 class ListConfigsCommand extends ContainerAwareCommand
 {
@@ -37,7 +38,7 @@ class ListConfigsCommand extends ContainerAwareCommand
     ];
 
     /**
-     * Configure this command
+     * Configure this command.
      */
     protected function configure()
     {
@@ -53,8 +54,9 @@ class ListConfigsCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int|null
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -72,8 +74,9 @@ class ListConfigsCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return array
      */
     private function _buildSimpleOutput(InputInterface $input, OutputInterface $output)
@@ -82,12 +85,14 @@ class ListConfigsCommand extends ContainerAwareCommand
         foreach ($this->getContainer()->getParameter('consul_api.config_names') as $name) {
             $out[] = sprintf('  %s', $name);
         }
+
         return $out;
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return array
      */
     private function _buildDumpOutput(InputInterface $input, OutputInterface $output)
@@ -102,7 +107,7 @@ class ListConfigsCommand extends ContainerAwareCommand
                 $this->_longestConfigName = $len;
             }
 
-            if ($v !== null) {
+            if (null !== $v) {
                 $out[] = sprintf('    %s: %s', $k, $this->_getValueOutput($v));
             }
         }
@@ -114,7 +119,7 @@ class ListConfigsCommand extends ContainerAwareCommand
             $out[] = sprintf('  %s', $name);
             $nameConfig = $container->get(sprintf('consul_api.%s.config', $name));
             foreach ($nameConfig as $k => $v) {
-                if ($v !== null) {
+                if (null !== $v) {
                     $out[] = sprintf('    %s: %s', $k, $this->_getValueOutput($v));
                 }
             }
@@ -127,6 +132,7 @@ class ListConfigsCommand extends ContainerAwareCommand
 
     /**
      * @param mixed $value
+     *
      * @return string
      */
     private function _getValueOutput($value)
@@ -146,7 +152,7 @@ class ListConfigsCommand extends ContainerAwareCommand
                 return 'NULL';
 
             default:
-                return (string)$value;
+                return (string) $value;
         }
     }
 }

@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Command;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -21,13 +23,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class KVGetCommand
- * @package DCarbone\PHPConsulAPIBundle\Command
+ * Class KVGetCommand.
  */
 class KVGetCommand extends AbstractPHPConsulAPICommand
 {
     /**
-     * Configure this command
+     * Configure this command.
      */
     protected function configure()
     {
@@ -44,8 +45,9 @@ class KVGetCommand extends AbstractPHPConsulAPICommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -58,11 +60,13 @@ class KVGetCommand extends AbstractPHPConsulAPICommand
         list($kvp, $qm, $err) = $consul->KV->get($input->getArgument('key'));
 
         if (null !== $err) {
-            $output->writeln('ERROR: ' . $err->getMessage());
+            $output->writeln('ERROR: '.$err->getMessage());
+
             return 1;
         }
 
         $output->writeln($kvp->Value);
+
         return 0;
     }
 }

@@ -1,22 +1,23 @@
 <?php
+
 namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
 
 use DCarbone\PHPConsulAPIBundle\Processor\AdapterInterface;
 use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
-
 
 class EnvVarProcessor implements EnvVarProcessorInterface
 {
     /**
      * @var AdapterInterface[]
      */
-    static private $adapters = [];
+    private static $adapters = [];
 
     /**
-     * need a separate array because adapters are populated later
+     * need a separate array because adapters are populated later.
+     *
      * @var string[]
      */
-    static private $providedTypes = [];
+    private static $providedTypes = [];
 
     public static function getProvidedTypes()
     {
@@ -34,11 +35,11 @@ class EnvVarProcessor implements EnvVarProcessorInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getEnv($prefix, $name, \Closure $getEnv)
     {
-        if(isset(self::$adapters[$prefix])){
+        if (isset(self::$adapters[$prefix])) {
             return self::$adapters[$prefix]->getEnv($prefix, $name, $getEnv);
         }
     }

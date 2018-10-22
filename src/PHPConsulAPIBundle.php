@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -20,8 +22,7 @@ use DCarbone\PHPConsulAPIBundle\DependencyInjection\PHPConsulAPIExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * Class PHPConsulAPIBundle
- * @package DCarbone\PHPConsulAPIBundle
+ * Class PHPConsulAPIBundle.
  */
 class PHPConsulAPIBundle extends Bundle
 {

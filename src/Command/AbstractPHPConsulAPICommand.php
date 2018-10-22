@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Command;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -22,8 +24,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * Class AbstractPHPConsulAPICommand
- * @package DCarbone\PHPConsulAPIBundle\Command
+ * Class AbstractPHPConsulAPICommand.
  */
 abstract class AbstractPHPConsulAPICommand extends Command
 {
@@ -34,6 +35,7 @@ abstract class AbstractPHPConsulAPICommand extends Command
 
     /**
      * Constructor.
+     *
      * @param ConsulBag $consulBag
      */
     public function __construct(ConsulBag $consulBag)
@@ -55,6 +57,7 @@ abstract class AbstractPHPConsulAPICommand extends Command
 
     /**
      * @param InputInterface $input
+     *
      * @return \DCarbone\PHPConsulAPI\Consul
      */
     protected function getConsul(InputInterface $input)
@@ -75,6 +78,7 @@ abstract class AbstractPHPConsulAPICommand extends Command
     /**
      * @param string $client
      * @param string $command
+     *
      * @return string
      */
     protected function buildName($client, $command)

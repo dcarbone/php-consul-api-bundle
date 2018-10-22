@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Bag;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Bag;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,8 +21,7 @@
 use DCarbone\PHPConsulAPI\Consul;
 
 /**
- * Class ConsulBag
- * @package DCarbone\PHPConsulAPIBundle\Bag
+ * Class ConsulBag.
  */
 class ConsulBag implements ConsulBagInterface
 {
@@ -31,7 +32,8 @@ class ConsulBag implements ConsulBagInterface
 
     /**
      * ConsulBag constructor.
-     * @param string $defaultName
+     *
+     * @param string   $defaultName
      * @param Consul[] $namedConsuls
      */
     public function __construct($defaultName = 'default', array $namedConsuls = [])
@@ -47,6 +49,7 @@ class ConsulBag implements ConsulBagInterface
 
     /**
      * @param string $name
+     *
      * @return \DCarbone\PHPConsulAPI\Consul|mixed
      */
     public function getNamed($name): Consul
@@ -82,9 +85,6 @@ class ConsulBag implements ConsulBagInterface
         return current($this->_namedConsuls);
     }
 
-    /**
-     * @return void
-     */
     public function next()
     {
         next($this->_namedConsuls);
@@ -106,9 +106,6 @@ class ConsulBag implements ConsulBagInterface
         return null !== key($this->_namedConsuls);
     }
 
-    /**
-     * @return void
-     */
     public function rewind()
     {
         reset($this->_namedConsuls);

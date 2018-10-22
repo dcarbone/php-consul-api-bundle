@@ -2,14 +2,12 @@
 
 namespace DCarbone\PHPConsulAPIBundle\Cache;
 
-
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
 
 class Persister implements PersisterInterface
 {
-
     /**
      * @var CacheItemPoolInterface
      */
@@ -27,7 +25,7 @@ class Persister implements PersisterInterface
 
     protected function getCacheItemName($name, $prefix): string
     {
-        return $prefix . crc32($name);
+        return $prefix.crc32($name);
     }
 
     public function get(string $name, string $prefix = null)

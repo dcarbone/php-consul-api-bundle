@@ -1,6 +1,6 @@
 <?php
-namespace DCarbone\PHPConsulAPIBundle\Processor;
 
+namespace DCarbone\PHPConsulAPIBundle\Processor;
 
 interface AdapterInterface
 {
