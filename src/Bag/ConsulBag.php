@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Bag;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Bag;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,59 +21,41 @@
 use DCarbone\PHPConsulAPI\Consul;
 
 /**
- * Class ConsulBag
- * @package DCarbone\PHPConsulAPIBundle\Bag
+ * Class ConsulBag.
  */
-class ConsulBag implements \Iterator
+class ConsulBag implements ConsulBagInterface
 {
     /** @var \DCarbone\PHPConsulAPI\Consul[] */
     private $_namedConsuls = [];
     /** @var string */
     private $_defaultName;
-    /** @var Consul */
-    private $_local;
 
     /**
      * ConsulBag constructor.
-     * @param \DCarbone\PHPConsulAPI\Consul $localConsul
-     * @param string $defaultName
-     * @param array $namedConsuls
+     *
+     * @param string   $defaultName
+     * @param Consul[] $namedConsuls
      */
-    public function __construct(Consul $localConsul, $defaultName, array $namedConsuls = [])
+    public function __construct($defaultName = 'default', array $namedConsuls = [])
     {
-        $this->_local = $localConsul;
         $this->_namedConsuls = $namedConsuls;
         $this->_defaultName = $defaultName;
     }
 
-    /**
-     * @return \DCarbone\PHPConsulAPI\Consul
-     */
-    public function getLocal()
-    {
-        return $this->_local;
-    }
-
-    /**
-     * @return \DCarbone\PHPConsulAPI\Consul
-     */
-    public function getDefault()
+    public function getDefault(): Consul
     {
         return $this->getNamed($this->_defaultName);
     }
 
     /**
      * @param string $name
+     *
      * @return \DCarbone\PHPConsulAPI\Consul|mixed
      */
-    public function getNamed($name)
+    public function getNamed($name): Consul
     {
         if ('default' === $name) {
             $name = $this->_defaultName;
-        }
-
-        if ('local' === $name) {
-            return $this->_local;
         }
 
         if (isset($this->_namedConsuls[$name])) {
@@ -101,9 +85,6 @@ class ConsulBag implements \Iterator
         return current($this->_namedConsuls);
     }
 
-    /**
-     * @return void
-     */
     public function next()
     {
         next($this->_namedConsuls);
@@ -125,9 +106,6 @@ class ConsulBag implements \Iterator
         return null !== key($this->_namedConsuls);
     }
 
-    /**
-     * @return void
-     */
     public function rewind()
     {
         reset($this->_namedConsuls);

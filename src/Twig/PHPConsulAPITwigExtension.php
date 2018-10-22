@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Twig;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Twig;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -23,8 +25,7 @@ use DCarbone\PHPConsulAPI\Session\SessionEntry;
 use DCarbone\PHPConsulAPIBundle\Bag\ConsulBag;
 
 /**
- * Class PHPConsulAPIExtension
- * @package DCarbone\PHPConsulAPIBundle\Twig
+ * Class PHPConsulAPIExtension.
  */
 class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
@@ -35,12 +36,12 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * PHPConsulAPIExtension constructor.
+     *
      * @param ConsulBag $consulBag
-     * @param array $configNames
      */
-    public function __construct(ConsulBag $consulBag, array $configNames)
+    public function __construct(ConsulBag $consulBag)
     {
-        $this->_cns = $configNames;
+        $this->_cns = $consulBag->getNames();
         $this->_cb = $consulBag;
     }
 
@@ -70,7 +71,6 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     public function getFunctions()
     {
         return [
-
             // Client getters
             new \Twig_Function('consul_kv', [$this, 'kv']),
             new \Twig_Function('consul_agent', [$this, 'agent']),
@@ -80,7 +80,6 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
             new \Twig_Function('consul_health', [$this, 'health']),
             new \Twig_Function('consul_coordinate', [$this, 'coordinate']),
             new \Twig_Function('consul_session', [$this, 'session']),
-
 
             // Shortcuts
             new \Twig_Function('consul_kv_get', [$this, 'kvGet']),
@@ -109,16 +108,14 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
             new \Twig_Function('consul_status_leader', [$this, 'statusLeader']),
             new \Twig_Function('consul_status_peers', [$this, 'statusPeers']),
-
         ];
     }
 
-
     // Client getter methods
-
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\KV\KVClient
      */
     public function kv($configName = 'default')
@@ -128,6 +125,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Agent\AgentClient
      */
     public function agent($configName = 'default')
@@ -137,6 +135,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Catalog\CatalogClient
      */
     public function catalog($configName = 'default')
@@ -146,6 +145,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Status\StatusClient
      */
     public function status($configName = 'default')
@@ -155,6 +155,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Event\EventClient
      */
     public function event($configName = 'default')
@@ -164,6 +165,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Health\HealthClient
      */
     public function health($configName = 'default')
@@ -173,6 +175,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Coordinate\CoordinateClient
      */
     public function coordinate($configName = 'default')
@@ -182,6 +185,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Session\SessionClient
      */
     public function session($configName = 'default')
@@ -189,12 +193,11 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
         return $this->_cb->getNamed($configName)->Session;
     }
 
-
     // Object creator methods
-
 
     /**
      * @param array $params
+     *
      * @return \DCarbone\PHPConsulAPI\KV\KVPair
      */
     public function newKVPair(array $params = [])
@@ -204,6 +207,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param array $params
+     *
      * @return \DCarbone\PHPConsulAPI\Agent\AgentServiceRegistration
      */
     public function newAgentServiceRegistration(array $params = [])
@@ -213,6 +217,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param array $params
+     *
      * @return \DCarbone\PHPConsulAPI\Agent\AgentCheckRegistration
      */
     public function newAgentCheckRegistration(array $params = [])
@@ -222,6 +227,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param array $params
+     *
      * @return \DCarbone\PHPConsulAPI\Session\SessionEntry
      */
     public function newSessionEntry(array $params = [])
@@ -229,13 +235,12 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
         return new SessionEntry($params);
     }
 
-
     // Shortcut methods
-
 
     /**
      * @param string $key
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\KV\KVPair
      */
     public function kvGet($key, $configName = 'default')
@@ -253,6 +258,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $prefix
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\KV\KVPair[]
      */
     public function kvList($prefix = '', $configName = 'default')
@@ -270,6 +276,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $prefix
      * @param string $configName
+     *
      * @return string[]
      */
     public function kvKeys($prefix = '', $configName = 'default')
@@ -288,13 +295,14 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
      * @param string $name
      * @param string $tags
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Catalog\CatalogService[]
      */
     public function catalogServices($name, $tags = '', $configName = 'default')
     {
         /** @var \DCarbone\PHPConsulAPI\Catalog\CatalogService[] $services */
         /** @var \DCarbone\PHPConsulAPI\Error $err */
-        list($services, $_, $err) = $this->_cb->getNamed($configName)->Catalog->service($name, (string)$tags);
+        list($services, $_, $err) = $this->_cb->getNamed($configName)->Catalog->service($name, (string) $tags);
         if (null !== $err) {
             throw new \RuntimeException($err->getMessage());
         }
@@ -306,16 +314,19 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
      * @param string $name
      * @param string $tags
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Catalog\CatalogService
      */
     public function catalogService($name, $tags = '', $configName = 'default')
     {
         $services = $this->catalogServices($name, $tags, $configName);
+
         return reset($services);
     }
 
     /**
      * @param string $configName
+     *
      * @return string[]
      */
     public function catalogDatacenters($configName = 'default')
@@ -332,6 +343,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $node
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Catalog\CatalogNode
      */
     public function catalogNode($node, $configName = 'default')
@@ -348,6 +360,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Catalog\CatalogNode[]
      */
     public function catalogNodes($configName = 'default')
@@ -364,6 +377,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param $node
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Health\HealthCheck[]
      */
     public function healthNode($node, $configName = 'default')
@@ -381,6 +395,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $service
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Health\HealthCheck[]
      */
     public function healthChecks($service, $configName = 'default')
@@ -398,6 +413,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $service
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Health\ServiceEntry[]
      */
     public function healthService($service, $configName = 'default')
@@ -415,6 +431,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $state
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Health\HealthCheck[]
      */
     public function healthState($state, $configName = 'default')
@@ -431,6 +448,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Coordinate\CoordinateDatacenterMap[]
      */
     public function coordinateDatacenters($configName = 'default')
@@ -447,6 +465,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Coordinate\CoordinateEntry[]
      */
     public function coordinateNodes($configName = 'default')
@@ -464,6 +483,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $name
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Event\UserEvent[]
      */
     public function eventList($name = '', $configName = 'default')
@@ -481,6 +501,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $id
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Session\SessionEntry[]
      */
     public function sessionInfo($id, $configName = 'default')
@@ -498,6 +519,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
     /**
      * @param string $node
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Session\SessionEntry[]
      */
     public function sessionNode($node, $configName = 'default')
@@ -514,6 +536,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return \DCarbone\PHPConsulAPI\Session\SessionEntry[]
      */
     public function sessionList($configName = 'default')
@@ -530,6 +553,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return string
      */
     public function statusLeader($configName = 'default')
@@ -545,6 +569,7 @@ class PHPConsulAPITwigExtension extends \Twig_Extension implements \Twig_Extensi
 
     /**
      * @param string $configName
+     *
      * @return string[]
      */
     public function statusPeers($configName = 'default')

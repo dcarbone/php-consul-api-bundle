@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\Command;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\Command;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,31 +18,34 @@
    limitations under the License.
 */
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use DCarbone\PHPConsulAPIBundle\Bag\ConsulBag;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class AbstractPHPConsulAPICommand
- * @package DCarbone\PHPConsulAPIBundle\Command
+ * Class AbstractPHPConsulAPICommand.
  */
-abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
+abstract class AbstractPHPConsulAPICommand extends Command
 {
-    /** @var \DCarbone\PHPConsulAPIBundle\Bag\ConsulBag */
-    protected $_consulBag;
+    /**
+     * @var ConsulBag
+     */
+    private $_consulBag;
 
     /**
      * Constructor.
      *
-     * @param string|null $name The name of the command; passing null means it must be set in configure()
-     *
-     * @throws \LogicException When the command name is empty
+     * @param ConsulBag $consulBag
      */
-    public function __construct($name = null)
+    public function __construct(ConsulBag $consulBag)
     {
-        parent::__construct($name);
+        parent::__construct();
+        $this->_consulBag = $consulBag;
+    }
 
+    protected function configure()
+    {
         $this->addOption(
             'config',
             null,
@@ -51,22 +56,15 @@ abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
     }
 
     /**
-     * @param ContainerInterface|null $container
-     */
-    public function setContainer(ContainerInterface $container = null)
-    {
-        parent::setContainer($container);
-
-        $this->_consulBag = $container->get('consul_api.bag');
-    }
-
-    /**
      * @param InputInterface $input
+     *
      * @return \DCarbone\PHPConsulAPI\Consul
      */
     protected function getConsul(InputInterface $input)
     {
-        return $this->_consulBag->getNamed($input->getOption('config'));
+        return $this->_consulBag->getNamed(
+            $input->getOption('config')
+        );
     }
 
     /**
@@ -80,6 +78,7 @@ abstract class AbstractPHPConsulAPICommand extends ContainerAwareCommand
     /**
      * @param string $client
      * @param string $command
+     *
      * @return string
      */
     protected function buildName($client, $command)

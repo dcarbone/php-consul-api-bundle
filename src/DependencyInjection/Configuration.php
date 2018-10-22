@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
+<?php
+
+namespace DCarbone\PHPConsulAPIBundle\DependencyInjection;
 
 /*
    Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -20,8 +22,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * Class Configuration
- * @package DCarbone\PHPConsulAPIBundle
+ * Class Configuration.
  */
 class Configuration implements ConfigurationInterface
 {
@@ -34,26 +35,71 @@ class Configuration implements ConfigurationInterface
         $root = $treeBuilder->root('consul_api');
 
         $root
-            ->addDefaultsIfNotSet()
+            ->beforeNormalization()
+            ->ifNull()
+                ->then(function () {
+                    return ['backends' => [
+                        'default' => [],
+                    ]];
+                })
+            ->end()
             ->children()
                 ->scalarNode('default_configuration')
                     ->info('Name of the configuration to use as the default configuration for your app')
-                    ->defaultValue('local')
-                    ->treatNullLike('local')
+                    ->defaultValue('default')
+                    ->treatNullLike('default')
                     ->cannotBeEmpty()
                 ->end()
-                ->arrayNode('named_configurations')
+                ->arrayNode('backends')
                     ->info('Custom Consul connection configurations')
+                    ->requiresAtLeastOneElement()
+                    ->beforeNormalization()
+                    ->ifString()
+                        ->then(function ($value) {
+                            return ['default' => [
+                                'addr' => $value,
+                            ]];
+                        })
+                    ->end()
+                    ->beforeNormalization()
+                    ->ifNull()
+                        ->then(function () {
+                            return ['default' => []];
+                        })
+                    ->end()
                     ->useAttributeAsKey('name')
                         ->prototype('array')
+                        ->beforeNormalization()
+                        ->ifString()
+                        ->then(function ($value) {
+                            return [
+                                'addr' => $value,
+                            ];
+                        })
+                        ->end()
                             ->children()
+                                ->arrayNode('resolve_env')
+                                ->info('An environment variables resolving via consul')
+                                ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->booleanNode('enabled')
+                                            ->info('Resolving enabled')
+                                            ->defaultTrue()
+                                        ->end()
+                                        ->scalarNode('cache')
+                                            ->info('TTL of entry if numeric or service identifier')
+                                            ->defaultNull()
+                                        ->end()
+                                    ->end()
+                                ->end()
                                 ->scalarNode('http_client')
                                     ->info('Name of Registered Service of an instance of a class that implements Guzzle\'s ClientInterface')
+                                    ->defaultValue('consul_api.default_guzzle_client')
                                 ->end()
                                 ->scalarNode('addr')
                                     ->info('Address:Port to Consul Agent WITHOUT scheme')
                                     ->isRequired()
-                                    ->cannotBeEmpty()
+                                    ->defaultValue('127.0.0.1:8500')
                                 ->end()
                                 ->enumNode('scheme')
                                     ->values(['http', 'https'])
