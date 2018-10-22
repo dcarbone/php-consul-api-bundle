@@ -12,6 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+parameters:
+  consul_api.processor_adapter_class: '\DCarbone\PHPConsulAPIBundle\Processor\Adapter'
+
 services:
 
   # Default Consul config
@@ -40,5 +43,7 @@ services:
   consul_api.default_guzzle_client:
     class: GuzzleHttp\Client
 
-  DCarbone\PHPConsulAPIBundle\DependencyInjection\EnvVarProcessor:
-    abstract: true
+  consul_api.env_processor:
+    class: 'DCarbone\PHPConsulAPIBundle\DependencyInjection\EnvVarProcessor'
+    tags: ['container.env_var_processor']
+

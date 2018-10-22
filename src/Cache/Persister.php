@@ -30,7 +30,7 @@ class Persister implements PersisterInterface
         return $prefix . crc32($name);
     }
 
-    public function get(\string $name, $prefix = null)
+    public function get(string $name, $prefix = null)
     {
         try {
             $result = $this->pool->getItem($this->getCacheItemName($name, $prefix));
@@ -42,7 +42,7 @@ class Persister implements PersisterInterface
         }
     }
 
-    public function set(\string $name, $value = null, $prefix = null)
+    public function set(string $name, $value = null, $prefix = null)
     {
         $item = $this->pool->getItem(
             $this->getCacheItemName($name, $prefix)

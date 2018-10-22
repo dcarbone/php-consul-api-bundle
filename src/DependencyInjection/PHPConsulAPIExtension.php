@@ -17,6 +17,7 @@
 */
 
 use DCarbone\PHPConsulAPIBundle\Cache\Persister;
+use DCarbone\PHPConsulAPIBundle\Processor\Adapter;
 use DCarbone\PHPConsulAPIBundle\Twig\PHPConsulAPITwigExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -122,11 +123,12 @@ class PHPConsulAPIExtension extends Extension
 
         $namePrefix = $name == 'default' ? 'consul' : 'consul_' . $name;
 
-        EnvVarProcessor::addProvidedType($namePrefix);
-
         $arguments = [
             new Reference(sprintf('consul_api.%s', $name))
         ];
+
+
+        $adapter = new Definition(Adapter::class);
 
         if (!empty($config['resolve_env']['cache'])) {
 
@@ -155,10 +157,14 @@ class PHPConsulAPIExtension extends Extension
 
         }
 
-        $definition = new Definition(EnvVarProcessor::class, $arguments);
+        $adapter->setArguments($arguments);
 
-        $definition->addTag('container.env_var_processor');
-        $builder->setDefinition($namePrefix, $definition);
+        $processor = $builder->findDefinition('consul_api.env_processor');
+        $processor->addMethodCall('addAdapter', [
+            $namePrefix, $adapter
+        ]);
+
+        EnvVarProcessor::addProvidedType($namePrefix);
 
     }
 
